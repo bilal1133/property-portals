@@ -2,25 +2,294 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1b232e;
+  --muted: #6b7281;
+  --panel: #ffffff;
+  --panel-strong: #f8f8f8;
+  --line: #d2d5db;
+  --accent: #0755e9;
+  --brand-deep: #10347e;
+  --brand-ink: #031c4b;
+  --accent-soft: #d9e8ff;
+  --success: #0755e9;
+  --success-soft: #d9e8ff;
+  --danger: #fa295d;
+  --danger-soft: #ffe5ed;
+  --navy: #020816;
+  --brand-gradient: radial-gradient(140.86% 125.07% at 10.25% 0%, #10347e 0%, #0755e9 100%);
+  --brand-gradient-alt: radial-gradient(103.69% 95.35% at 10.25% 0%, #10347e 0%, #0755e9 100%);
+  --footer-gradient: linear-gradient(180deg, #0a1426 0%, #020816 100%);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-card: 0 18px 40px rgba(16, 24, 40, 0.04);
+  --shadow-card-hover: 0 26px 60px rgba(16, 24, 40, 0.08);
+  --shadow-card-focus: 0 0 0 3px rgba(7, 85, 233, 0.12), 0 26px 60px rgba(16, 24, 40, 0.08);
+  --shadow-brand: 0 18px 56px rgba(7, 85, 233, 0.24);
+  --font-sans: var(--font-plus-jakarta-sans);
+  --font-display: var(--font-plus-jakarta-sans);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--accent-soft);
+  --color-brand-ink: var(--brand-ink);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-navy: var(--navy);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), sans-serif;
+  min-height: 100vh;
+  position: relative;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 76% 5%, rgba(7, 85, 233, 0.24), transparent 16%),
+    radial-gradient(circle at 82% 8%, rgba(7, 85, 233, 0.58), transparent 11%),
+    radial-gradient(circle at 84% 8%, rgba(16, 52, 126, 0.24), transparent 20%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    color 180ms var(--ease-out-quint),
+    border-color 180ms var(--ease-out-quint),
+    background-color 180ms var(--ease-out-quint),
+    box-shadow 240ms var(--ease-out-quint),
+    transform 240ms var(--ease-out-quint),
+    opacity 180ms var(--ease-out-quint);
+}
+
+::selection {
+  background: rgba(7, 85, 233, 0.18);
+  color: var(--foreground);
+}
+
+.animate-rise {
+  animation: rise-in 720ms var(--ease-out-quint) both;
+  animation-delay: var(--delay, 0ms);
+}
+
+.glass-edge {
+  box-shadow: var(--shadow-card);
+}
+
+input,
+select,
+textarea,
+button {
+  border-radius: 0;
+}
+
+input,
+select,
+textarea {
+  min-height: 50px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--foreground);
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+}
+
+a {
+  text-decoration: none;
+}
+
+[id] {
+  scroll-margin-top: 196px;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid rgba(7, 85, 233, 0.28);
+  outline-offset: 3px;
+}
+
+.surface-elevation {
+  box-shadow: var(--shadow-card);
+}
+
+.surface-elevation-strong {
+  box-shadow: 0 22px 52px rgba(16, 24, 40, 0.06);
+}
+
+.brand-elevation {
+  box-shadow: var(--shadow-brand);
+}
+
+.motion-panel {
+  position: relative;
+}
+
+.motion-lift {
+  transition:
+    transform 260ms var(--ease-out-quint),
+    box-shadow 280ms var(--ease-out-quint),
+    border-color 180ms var(--ease-out-quint),
+    background-color 180ms var(--ease-out-quint);
+}
+
+.motion-lift:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-4px);
+}
+
+.motion-lift:focus-within {
+  box-shadow: var(--shadow-card-focus);
+  transform: translateY(-2px);
+}
+
+.motion-row {
+  transition:
+    background-color 180ms var(--ease-out-quint),
+    transform 180ms var(--ease-out-quint);
+}
+
+.motion-row:hover {
+  background: color-mix(in srgb, var(--accent-soft) 20%, white);
+}
+
+.pressable {
+  transition:
+    transform 220ms var(--ease-out-quint),
+    box-shadow 260ms var(--ease-out-quint),
+    background-color 180ms var(--ease-out-quint),
+    border-color 180ms var(--ease-out-quint),
+    color 180ms var(--ease-out-quint);
+}
+
+.pressable:hover {
+  transform: translateY(-2px);
+}
+
+.pressable:active {
+  transform: translateY(0);
+}
+
+.pressable svg:last-child {
+  transition: transform 220ms var(--ease-out-quint);
+}
+
+.pressable:hover svg:last-child {
+  transform: translateX(2px);
+}
+
+.sheen {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: -1px auto -1px -42%;
+  width: 36%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(0) skewX(-18deg);
+  transition:
+    transform 620ms var(--ease-out-expo),
+    opacity 220ms var(--ease-out-quint);
+}
+
+.sheen:hover::after,
+.sheen:focus-within::after {
+  opacity: 1;
+  transform: translateX(360%) skewX(-18deg);
+}
+
+.orb-drift {
+  animation: orb-drift 14s ease-in-out infinite;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes orb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-12px, 10px, 0) scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .motion-lift:hover,
+  .motion-lift:focus-within,
+  .pressable:hover,
+  .pressable:active {
+    transform: none;
+  }
 }
