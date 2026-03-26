@@ -1,9 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { CollapsingHeader } from "@/components/collapsing-header";
 import { ConsultationForm } from "@/components/consultation-form";
+import { RatesSharePanel } from "@/components/rates-share-panel";
 import { getCollectionVisual } from "@/data/collection-visuals";
 import {
+  consultationExpectations,
   consultationIntents,
   dealProofs,
   guideTopics,
@@ -32,167 +35,262 @@ type CollectionLink = {
   label: string;
 };
 
+export type HeaderTickerItem = {
+  id: string;
+  href: string;
+  label: string;
+  price: number;
+  delta: number | null;
+  direction: MarketDirection;
+};
+
 const typeLabels = {
   plot: "Plots",
   file: "Files",
   home: "Homes",
 } as const;
 
-const shellClass = "mx-auto w-full max-w-[1776px] px-5 sm:px-8 xl:px-[52px]";
+const shellClass = "mx-auto w-full max-w-[1600px] px-5 sm:px-8 xl:px-[52px]";
 const surfaceClass = "motion-panel surface-elevation border border-line bg-white";
 const softSurfaceClass = "motion-panel surface-elevation border border-line bg-panel-strong";
 const brandSurfaceClass =
-  "motion-panel brand-elevation border border-white/20 bg-[var(--brand-gradient)] text-white";
-const darkSurfaceClass = "border border-white/10 bg-navy text-white";
+  "theme-inverse motion-panel brand-elevation border border-white/20 bg-brand-gradient text-white";
+const darkSurfaceClass = "theme-inverse border border-white/10 bg-navy text-white";
 const monoClass = "font-mono text-[0.72rem] uppercase tracking-[0.18em]";
 const utilityMonoClass = "font-mono text-[0.64rem] uppercase tracking-[0.16em]";
 const primaryButtonClass =
-  "pressable sheen inline-flex min-h-11 items-center justify-center gap-3 border border-accent bg-accent px-5 py-3 text-sm font-semibold text-white hover:border-brand-deep hover:bg-brand-deep";
+  "pressable sheen inline-flex min-h-13 items-center justify-center gap-3 border border-accent bg-brand-gradient px-7 py-4 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(7,85,233,0.22)] hover:border-brand-deep hover:shadow-[0_22px_44px_rgba(7,85,233,0.26)]";
 const secondaryButtonClass =
-  "pressable sheen inline-flex min-h-11 items-center justify-center gap-3 border border-line bg-white px-5 py-3 text-sm font-semibold text-foreground hover:border-accent hover:text-accent";
+  "pressable sheen inline-flex min-h-13 items-center justify-center gap-3 border border-accent/20 bg-accent-soft px-7 py-4 text-sm font-semibold text-brand-deep hover:border-accent hover:bg-white hover:text-accent";
 const lightButtonClass =
-  "pressable sheen inline-flex min-h-11 items-center justify-center gap-3 border border-white bg-white px-5 py-3 text-sm font-semibold text-foreground hover:text-accent";
+  "pressable sheen inline-flex min-h-13 items-center justify-center gap-3 border border-white bg-white px-7 py-4 text-sm font-semibold text-foreground shadow-[0_12px_28px_rgba(2,8,22,0.12)] hover:text-accent";
 const chipClass =
   "inline-flex min-h-9 items-center gap-2 rounded-[20px] border border-line bg-white px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted transition hover:border-accent hover:text-accent";
+
+function BrandMark({ size = 48 }: { size?: number }) {
+  return (
+    <Image
+      src="/brand/property-portals-mark.svg"
+      alt="Property Portals mark"
+      width={size}
+      height={size}
+      className="h-auto w-auto"
+    />
+  );
+}
+
+function BrandLockup({
+  compact = false,
+  caption,
+  inverse = false,
+  dense = false,
+}: {
+  compact?: boolean;
+  caption: string;
+  inverse?: boolean;
+  dense?: boolean;
+}) {
+  return (
+    <div className={`flex items-center ${dense ? "gap-3" : "gap-4"}`}>
+      <div
+        className={`motion-lift ${dense ? "p-1.5" : "p-2.5"} ${
+          inverse ? "border border-white/18 bg-white/12" : "border border-line bg-white"
+        }`}
+      >
+        <BrandMark size={dense ? 22 : compact ? 34 : 44} />
+      </div>
+      <div>
+        <p
+          className={`font-display ${dense ? "text-[1.2rem]" : "text-[1.55rem]"} font-semibold tracking-[-0.05em] ${
+            inverse ? "text-white" : "text-foreground"
+          }`}
+        >
+          {siteMeta.brandName}
+        </p>
+        <p
+          className={`${dense ? "font-mono text-[0.58rem] uppercase tracking-[0.16em]" : monoClass} ${dense ? "mt-0.5" : "mt-1"} ${
+            inverse ? "text-white/82" : "text-muted"
+          }`}
+        >
+          {caption}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function SiteHeader({
   pageLinks,
   collectionLinks,
   currentCollectionSlug,
+  tickerItems,
 }: {
   pageLinks: PageLink[];
   collectionLinks: CollectionLink[];
   currentCollectionSlug?: string;
+  tickerItems: HeaderTickerItem[];
 }) {
   const activeCollectionLabel = collectionLinks.find(
     (collection) => collection.slug === currentCollectionSlug
   )?.label;
+  const marqueeItems = tickerItems.length > 0 ? [...tickerItems, ...tickerItems] : [];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/94 backdrop-blur-md">
-      <div className="border-b border-white/16 bg-[var(--brand-gradient)] text-white">
-        <div className={`${shellClass} flex flex-col gap-3 py-2.5 lg:flex-row lg:items-center lg:justify-between`}>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-white/84">
-            <span className={`${utilityMonoClass} text-white/72`}>{siteMeta.agencyName}</span>
-            <span className="hidden h-3.5 w-px bg-white/24 lg:block" />
-            <span>{siteMeta.address}</span>
-            <span className="hidden h-3.5 w-px bg-white/24 lg:block" />
-            <span className={`${utilityMonoClass} rounded-[20px] border border-white/20 bg-white/10 px-3 py-1 text-white/88`}>
-              {activeCollectionLabel ? `${activeCollectionLabel} board` : "Live market boards"}
-            </span>
-          </div>
+    <CollapsingHeader
+      topBar={
+        <div className="border-b border-white/12 bg-brand-gradient text-white">
+          <div className={`${shellClass} flex items-center justify-between gap-4 py-3`}>
+            <div className="min-w-0 flex items-center gap-4">
+              <Link className="group shrink-0" href="/">
+                <BrandLockup
+                  compact
+                  inverse
+                  dense
+                  caption={
+                    currentCollectionSlug ? "Dedicated collection board" : "Collection market hub"
+                  }
+                />
+              </Link>
 
-          <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-            <a
-              className="text-sm font-medium text-white transition hover:text-white/72"
-              href={`tel:${siteMeta.phoneE164}`}
-            >
-              Call / WhatsApp {siteMeta.phoneDisplay}
-            </a>
-            <SocialLinks compact inverse />
-          </div>
-        </div>
-      </div>
-
-      <div className="border-b border-line bg-white">
-        <div className={`${shellClass} grid gap-4 py-4 xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:items-center`}>
-          <div className="flex items-start gap-4">
-            <Link className="motion-lift border border-line bg-white px-4 py-3" href="/">
-              <p className="font-display text-[1.65rem] font-semibold tracking-[-0.05em] text-foreground">
-                {siteMeta.brandName}
-              </p>
-              <p className={`${monoClass} mt-1 text-muted`}>
-                {currentCollectionSlug ? "Dedicated collection board" : "Collection market hub"}
-              </p>
-            </Link>
-
-            <div className="hidden min-[1150px]:block">
-              <p className={`${monoClass} text-accent`}>
-                {activeCollectionLabel ? "Current board" : "Daily coverage"}
-              </p>
-              <p className="mt-2 text-sm font-medium text-foreground">
-                {activeCollectionLabel ?? "Switch between published collection pages"}
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                Direct WhatsApp support with Muhammad Kamran Sharif
-              </p>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto xl:px-6">
-            <nav className="flex min-w-max items-center gap-1.5">
-              {pageLinks.map((link) => (
-                <a
-                  key={link.href}
-                  className="pressable inline-flex min-h-11 items-center border-b-2 border-transparent px-3 text-sm font-medium text-muted hover:border-accent hover:text-foreground"
-                  href={link.href}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 xl:justify-end">
-            <div className="hidden min-[860px]:flex flex-wrap items-center gap-2">
-              <span className={chipClass}>5 min sync</span>
-              <span className={chipClass}>
-                {currentCollectionSlug ? "Board view" : "Hub view"}
-              </span>
-            </div>
-            <a
-              className={primaryButtonClass}
-              href={buildWhatsAppUrl(
-                siteMeta.phoneE164,
-                "Assalam o Alaikum Kamran, I want direct guidance on a live property collection."
-              )}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Chat with Kamran
-              <ArrowUpRightIcon />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {collectionLinks.length > 0 ? (
-        <div className="border-b border-line bg-panel-strong/95">
-          <div className={`${shellClass} flex flex-col gap-3 py-3 lg:flex-row lg:items-center`}>
-            <div className="flex shrink-0 items-center gap-3">
-              <p className={`${monoClass} text-accent`}>Collection boards</p>
-              <span className="hidden h-4 w-px bg-line lg:block" />
-              <p className="hidden text-sm text-muted xl:block">
-                Open a dedicated page for each published market board.
-              </p>
-            </div>
-
-            <div className="overflow-x-auto">
-              <div className="flex min-w-max items-center gap-2 pb-1">
-                {collectionLinks.map((collection) => {
-                  const isActive = currentCollectionSlug === collection.slug;
-
-                  return (
-                    <Link
-                      key={collection.slug}
-                      className={`pressable min-h-11 px-3 py-2 text-sm ${
-                        isActive
-                          ? "border border-accent bg-accent text-white"
-                          : "border border-line bg-white text-muted hover:border-accent hover:text-accent"
-                      }`}
-                      href={`/collections/${collection.slug}`}
+              <div className="hidden overflow-x-auto md:block">
+                <nav className="flex min-w-max items-center gap-1">
+                  {pageLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      className="pressable inline-flex min-h-8 items-center rounded-[999px] border border-transparent px-3 py-1.5 text-[0.9rem] font-medium text-white/88 hover:border-white/20 hover:bg-white/12 hover:text-white"
+                      href={link.href}
                     >
-                      {collection.label}
-                    </Link>
-                  );
-                })}
+                      {link.label}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="hidden items-center gap-2 text-xs text-white/80 xl:flex">
+                <span className={utilityMonoClass}>Live market data</span>
+                <span>{activeCollectionLabel ? `${activeCollectionLabel} board` : "All collections"}</span>
+              </div>
+              <div className="hidden sm:block">
+                <SocialLinks compact inverse />
+              </div>
+              <a
+                className="pressable inline-flex min-h-10 items-center justify-center gap-2 rounded-[12px] border border-white/24 bg-white px-5 py-2.5 text-sm font-semibold text-accent shadow-[0_12px_24px_rgba(255,255,255,0.16)] hover:border-white hover:text-brand-deep hover:shadow-[0_18px_32px_rgba(255,255,255,0.22)]"
+                href={buildWhatsAppUrl(
+                  siteMeta.phoneE164,
+                  "Hello, I want direct guidance on a live property collection."
+                )}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Talk to the desk
+                <ArrowUpRightIcon />
+              </a>
+            </div>
+          </div>
+
+          <div className={`${shellClass} pb-3 md:hidden`}>
+            <div className="overflow-x-auto">
+              <nav className="flex min-w-max items-center gap-1">
+                {pageLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    className="pressable inline-flex min-h-8 items-center rounded-[999px] border border-white/18 px-3 py-1.5 text-[0.82rem] font-medium text-white/88 hover:bg-white/12 hover:text-white"
+                    href={link.href}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </div>
+        </div>
+      }
+      lowerBars={
+        <>
+          <div className="border-b border-line bg-white/96 text-foreground">
+            <div className={`${shellClass} flex flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between`}>
+              <div className="hidden flex-wrap items-center gap-3 text-sm text-muted lg:flex">
+                <span className={`${utilityMonoClass} text-accent`}>{siteMeta.agencyName}</span>
+                <span className="hidden h-3.5 w-px bg-line sm:block" />
+                <span className="max-w-[34rem] text-muted">{siteMeta.address}</span>
+                <span className="hidden h-3.5 w-px bg-line lg:block" />
+                <span className="text-muted">Verified boards · Market-guidance desk</span>
+              </div>
+
+              <div className="overflow-x-auto lg:max-w-[48%]">
+                <div className="flex min-w-max items-center gap-2 pb-1">
+                  {collectionLinks.map((collection) => {
+                    const isActive = currentCollectionSlug === collection.slug;
+
+                    return (
+                      <Link
+                        key={collection.slug}
+                        className={`pressable min-h-10 rounded-[10px] px-3.5 py-2 text-sm ${
+                          isActive
+                            ? "border border-accent bg-accent text-white"
+                            : "border border-line bg-panel-strong text-muted hover:border-accent hover:bg-white hover:text-accent"
+                        }`}
+                        href={`/collections/${collection.slug}`}
+                      >
+                        {collection.label}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ) : null}
-    </header>
+
+          {tickerItems.length > 0 ? (
+            <div className="hidden border-b border-line bg-panel-strong/96 md:block">
+              <div className={`${shellClass} flex items-center gap-4 overflow-hidden py-3`}>
+                <p className={`${monoClass} shrink-0 text-accent`}>Live rates</p>
+                <div className="header-marquee min-w-0 flex-1">
+                  <div className="header-marquee-inner">
+                    {marqueeItems.map((item, index) => (
+                      <a
+                        key={`${item.id}-${index}`}
+                        href={item.href}
+                        className="group inline-flex shrink-0 items-center gap-3 px-4 text-sm text-muted transition hover:text-foreground"
+                      >
+                        <span className="font-medium text-muted group-hover:text-foreground">
+                          {item.label}
+                        </span>
+                        <span className="font-semibold text-foreground">{formatPriceLac(item.price)}</span>
+                        <TickerDelta direction={item.direction} delta={item.delta} />
+                        <span className="text-line">|</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </>
+      }
+    />
   );
+}
+
+export function buildHeaderTickerItems(sections: MappedCollectionSection[]): HeaderTickerItem[] {
+  return sections
+    .flatMap((section) =>
+      section.groups.flatMap((group) =>
+        group.products
+          .filter((product) => product.currentPrice !== null)
+          .map((product) => ({
+            id: product.id,
+            href: `/collections/${section.slug}`,
+            label: product.name,
+            price: product.currentPrice ?? 0,
+            delta: product.delta,
+            direction: product.direction,
+          }))
+      )
+    )
+    .slice(0, 18);
 }
 
 export function SectionHeading({
@@ -208,15 +306,15 @@ export function SectionHeading({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className={`${monoClass} ${inverse ? "text-white/72" : "text-accent"}`}>{eyebrow}</p>
+      <p className={`${monoClass} ${inverse ? "text-white/86" : "text-accent"}`}>{eyebrow}</p>
       <h2
-        className={`mt-3 font-display text-[clamp(2.4rem,4.5vw,4.8rem)] font-semibold leading-[0.94] tracking-[-0.05em] ${
+        className={`mt-4 font-display text-[clamp(2.9rem,5vw,5.8rem)] font-semibold leading-[0.92] tracking-[-0.055em] ${
           inverse ? "text-white" : "text-foreground"
         }`}
       >
         {title}
       </h2>
-      <p className={`mt-4 max-w-3xl text-base leading-8 ${inverse ? "text-white/80" : "text-muted"}`}>
+      <p className={`mt-6 max-w-3xl text-lg leading-9 ${inverse ? "text-white/90" : "text-muted"}`}>
         {description}
       </p>
     </div>
@@ -264,14 +362,14 @@ function CollectionVisualPreview({
         className="object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
         style={visual.objectPosition ? { objectPosition: visual.objectPosition } : undefined}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,8,22,0.08)_0%,rgba(2,8,22,0.18)_34%,rgba(2,8,22,0.86)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,8,22,0.18)_0%,rgba(2,8,22,0.34)_32%,rgba(2,8,22,0.94)_100%)]" />
 
       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 sm:p-5">
-        <span className="border border-white/16 bg-black/20 px-3 py-2 font-mono text-[0.64rem] uppercase tracking-[0.16em] text-white/80 backdrop-blur-sm">
+        <span className="border border-white/20 bg-[rgba(3,28,75,0.62)] px-3 py-2 font-mono text-[0.64rem] uppercase tracking-[0.16em] text-white/94 backdrop-blur-sm">
           {visual.kicker}
         </span>
         <a
-          className="pressable inline-flex min-h-10 items-center gap-2 border border-white/18 bg-white/10 px-3 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm hover:bg-white/18"
+          className="pressable inline-flex min-h-10 items-center gap-2 border border-white/24 bg-[rgba(3,28,75,0.58)] px-3 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm hover:bg-[rgba(3,28,75,0.72)]"
           href={visual.sourceHref}
           target="_blank"
           rel="noreferrer"
@@ -282,9 +380,10 @@ function CollectionVisualPreview({
       </div>
 
       <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-        <p className={`${monoClass} text-white/72`}>{name}</p>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-white/84">{visual.caption}</p>
-        <p className={`${utilityMonoClass} mt-3 text-white/60`}>Source · {visual.sourceLabel}</p>
+        <p className={`${monoClass} text-white/86`}>{visual.location}</p>
+        <p className="mt-2 text-lg font-semibold text-white">{name}</p>
+        <p className="mt-2 text-sm leading-6 text-white/92">{visual.spotlight}</p>
+        <p className={`${utilityMonoClass} mt-3 text-white/88`}>Source · {visual.sourceLabel}</p>
       </div>
     </div>
   );
@@ -304,7 +403,7 @@ export function CollectionHeroMediaPanel({
   const visual = getCollectionVisual(collection.slug);
 
   return (
-    <aside className="relative overflow-hidden border border-white/20 bg-[var(--brand-gradient)] text-white shadow-[0_16px_48px_rgba(7,85,233,0.24)]">
+    <aside className="relative overflow-hidden border border-white/20 bg-brand-gradient text-white shadow-[0_16px_48px_rgba(7,85,233,0.24)]">
       {visual ? (
         <div className="border-b border-white/16">
           <CollectionVisualPreview
@@ -320,22 +419,22 @@ export function CollectionHeroMediaPanel({
       )}
 
       <div className="relative p-6">
-        <p className={`${monoClass} text-white/72`}>Board snapshot</p>
+        <p className={`${monoClass} text-white/84`}>Board snapshot</p>
         <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
           {collection.name}
         </h2>
-        <p className="mt-3 text-sm leading-7 text-white/80">
+        <p className="mt-3 text-sm leading-7 text-white/88">
           {state === "ready"
-            ? "The public board is live, the current rates are visible below, and the image panel links back to the source project reference."
+            ? "Live board with published rates, a clean market snapshot, and a direct source reference."
             : state === "empty"
-              ? "The board is live, but products have not been published yet. The image panel still gives the visitor a direct project reference."
-              : "The collection shell is visible while the live CMS connection recovers, and the visual panel keeps the board grounded in the source project."}
+              ? "The board is ready, but published products have not been added yet."
+              : "The collection shell is visible while the live CMS connection recovers."}
         </p>
 
-        <div className="mt-6 space-y-3">
-          <MetricCard label="Live price" value={heroRate ? formatPriceLac(heroRate) : "Pending"} />
-          <MetricCard label="Rate family" value={rateLabel} />
-          <MetricCard
+        <div className="mt-6 grid gap-px overflow-hidden border border-white/28 bg-white/28 sm:grid-cols-3">
+          <MetricTile label="Live price" value={heroRate ? formatPriceLac(heroRate) : "Pending"} />
+          <MetricTile label="Rate family" value={rateLabel} />
+          <MetricTile
             label="Board state"
             value={
               state === "ready" ? "Live" : state === "empty" ? "Waiting" : "Unavailable"
@@ -344,6 +443,166 @@ export function CollectionHeroMediaPanel({
         </div>
       </div>
     </aside>
+  );
+}
+
+export function CollectionShowcaseHero({
+  collection,
+  state,
+  rateLabel,
+  heroRate,
+}: {
+  collection: MappedCollectionSection;
+  state: MarketState;
+  rateLabel: string;
+  heroRate: number | null;
+}) {
+  const visual = getCollectionVisual(collection.slug);
+  const displayRateLabel =
+    rateLabel === "market rates"
+      ? "Live rates, recent movement, and direct guidance"
+      : `Live ${rateLabel}, recent movement, and direct guidance`;
+  const trustHeading = getCollectionTrustHeading(collection.name, rateLabel);
+  const heroNarrative =
+    state === "ready"
+      ? `${collection.name} gives you current published numbers, visible movement, and a fast route to human guidance when you want to buy, sell, compare, or wait with more confidence.`
+      : state === "empty"
+        ? `${collection.name} already has a dedicated decision page. Published products are still being added, but the board is ready for watchlist use and direct questions.`
+        : `${collection.name} stays visible while the live feed recovers, so the trust layer and contact path remain active even during a temporary sync issue.`;
+  const heroActions = visual
+    ? [visual.location, visual.spotlight, "Direct WhatsApp handoff"]
+    : [
+        "Check current published rates",
+        "See what moved since the previous point",
+        "Ask whether to buy, sell, compare, or wait",
+      ];
+
+  return (
+    <section className="section-paper">
+      <div className={`${shellClass} pb-16 pt-8 lg:pb-28 lg:pt-10`}>
+        <div className="theme-inverse animate-rise surface-elevation-strong bg-brand-gradient relative overflow-hidden border border-white/16 px-6 py-12 text-white sm:px-10 lg:px-14 lg:py-18">
+          {visual ? (
+            <>
+              <Image
+                src={visual.src}
+                alt={visual.alt}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover"
+                style={visual.objectPosition ? { objectPosition: visual.objectPosition } : undefined}
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,28,75,0.9)_0%,rgba(3,28,75,0.82)_24%,rgba(3,28,75,0.96)_100%)]" />
+            </>
+          ) : (
+            <>
+              <div className="orb-drift pointer-events-none absolute -left-12 -top-10 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.22)_0%,rgba(255,255,255,0)_70%)] blur-3xl" />
+              <div className="orb-drift pointer-events-none absolute -right-18 bottom-0 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0)_72%)] blur-3xl" />
+            </>
+          )}
+
+          <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
+            <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-white/84">
+              <Link className="transition hover:text-white" href="/">
+                Home
+              </Link>
+              <span>/</span>
+              <span>Collection board</span>
+              <span>/</span>
+              <span className="text-white">{collection.name}</span>
+            </div>
+
+            <div className="mt-8 inline-flex min-h-11 items-center gap-3 rounded-[999px] border border-white/32 bg-white/14 px-5 py-2 text-white shadow-[0_8px_22px_rgba(2,8,22,0.22)] backdrop-blur-md">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#88e592]" />
+              <span className={`${monoClass} text-white/92`}>Live collection data · Updated daily</span>
+            </div>
+
+            <div className="mt-10 space-y-5">
+              <p className="font-mono text-[0.76rem] uppercase tracking-[0.2em] text-[#e7f0ff]">
+                {trustHeading}
+              </p>
+              <h1 className="font-display text-[clamp(3.3rem,8vw,6.8rem)] font-semibold leading-[0.9] tracking-[-0.065em] text-white [text-shadow:0_10px_32px_rgba(2,8,22,0.36)]">
+                {collection.name}
+              </h1>
+              <p className="font-display text-[clamp(2.8rem,6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.06em] text-white [text-shadow:0_10px_32px_rgba(2,8,22,0.32)]">
+                <span className="text-[#eef4ff]">{displayRateLabel}</span>
+              </p>
+            </div>
+
+            <p className="mt-8 max-w-3xl text-lg leading-9 text-white/90 sm:text-xl">
+              {heroNarrative}
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              {["Live board data", "Visible movement badges", "Direct WhatsApp handoff"].map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex min-h-10 items-center rounded-[999px] border border-white/26 bg-white/12 px-4 py-2 text-sm font-medium text-white/94 backdrop-blur-sm"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <a
+                className={lightButtonClass}
+                href={buildWhatsAppUrl(
+                  siteMeta.phoneE164,
+                  `Hello, I want guidance on ${collection.name}.`
+                )}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Get {collection.name} guidance
+                <ArrowUpRightIcon />
+              </a>
+              <a
+                className="pressable inline-flex min-h-13 items-center justify-center gap-3 rounded-[14px] border border-white/28 bg-white/14 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white hover:bg-white/20"
+                href="#rates"
+              >
+                Jump to live rates
+                <ArrowUpRightIcon />
+              </a>
+              <Link
+                className="pressable inline-flex min-h-13 items-center justify-center gap-3 rounded-[14px] border border-white/28 bg-white/14 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white hover:bg-white/20"
+                href="/#collections"
+              >
+                Compare collections
+                <ArrowUpRightIcon />
+              </Link>
+            </div>
+
+            <div className="mt-8 grid w-full max-w-5xl gap-3 md:grid-cols-3">
+              {heroActions.map((action) => (
+                <div
+                  key={action}
+                  className="border border-white/24 bg-white/14 px-4 py-4 text-left backdrop-blur-sm"
+                >
+                  <p className={`${monoClass} text-white/86`}>
+                    {visual ? "Collection highlight" : "Use this board to"}
+                  </p>
+                  <p className="mt-3 text-sm font-semibold leading-7 text-white">{action}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 grid w-full max-w-4xl gap-px overflow-hidden rounded-[24px] border border-white/28 bg-white/18 sm:grid-cols-2 xl:grid-cols-4">
+              <HeroTrustMetric
+                label="Board status"
+                value={state === "ready" ? "Live" : state === "empty" ? "Ready" : "Syncing"}
+              />
+              <HeroTrustMetric label="Products" value={String(collection.productCount)} />
+              <HeroTrustMetric
+                label="Latest rate"
+                value={heroRate !== null ? formatPriceLac(heroRate) : "Pending"}
+              />
+              <HeroTrustMetric label="Last updated" value={collection.latestUpdateLabel} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -359,11 +618,11 @@ export function FeaturedCollectionBoard({
   if (!collection) {
     return (
       <aside className={`${brandSurfaceClass} overflow-hidden p-6`}>
-        <p className={`${monoClass} text-white/72`}>Collection board</p>
+        <p className={`${monoClass} text-white/84`}>Collection board</p>
         <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
           Awaiting live collection data
         </h2>
-        <p className="mt-3 text-sm leading-7 text-white/80">
+        <p className="mt-3 text-sm leading-7 text-white/88">
           The homepage stays live even when Strapi does not return any collection data yet.
         </p>
       </aside>
@@ -391,17 +650,17 @@ export function FeaturedCollectionBoard({
       <div className="relative space-y-6 p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className={`${monoClass} text-white/72`}>Featured board</p>
+            <p className={`${monoClass} text-white/84`}>Featured board</p>
             <h2 className="mt-2 font-display text-[2.5rem] font-semibold leading-[0.98] tracking-[-0.05em] text-white">
               {collection.name}
             </h2>
           </div>
-          <span className="border border-white/20 bg-white/12 px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white/88">
+          <span className="border border-white/24 bg-white/16 px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white/92">
             {collection.latestUpdateLabel}
           </span>
         </div>
 
-        <div className="grid gap-px overflow-hidden border border-white/20 bg-white/20 md:grid-cols-3">
+        <div className="grid gap-px overflow-hidden border border-white/22 bg-white/30 md:grid-cols-3">
           <MetricTile label="Products" value={String(collection.productCount)} />
           <MetricTile
             label="Status"
@@ -412,13 +671,13 @@ export function FeaturedCollectionBoard({
 
         {collection.hasProducts ? (
           <div className="space-y-3">
-            {collection.featuredProducts.slice(0, 4).map((product) => (
+            {collection.featuredProducts.slice(0, 3).map((product) => (
               <div
                 key={product.id}
-                className="motion-lift sheen grid gap-3 border border-white/20 bg-white/10 px-4 py-4 md:grid-cols-[minmax(0,1fr)_auto]"
+                className="motion-lift sheen grid gap-3 border border-white/28 bg-white/22 px-4 py-4 md:grid-cols-[minmax(0,1fr)_auto]"
               >
                 <div>
-                  <p className={`${monoClass} text-white/72`}>{getTypeLabel(product.type)}</p>
+                  <p className={`${monoClass} text-white/84`}>{getTypeLabel(product.type)}</p>
                   <p className="mt-2 text-sm font-semibold text-white">{product.name}</p>
                 </div>
                 <div className="text-left md:text-right">
@@ -433,31 +692,42 @@ export function FeaturedCollectionBoard({
             ))}
           </div>
         ) : (
-          <p className="border border-dashed border-white/24 bg-white/8 px-4 py-5 text-sm leading-7 text-white/80">
+          <p className="border border-dashed border-white/28 bg-white/12 px-4 py-5 text-sm leading-7 text-white/88">
             This collection is published but does not have live products yet. Open the board anyway to keep the market on your watchlist.
           </p>
         )}
 
         <div className="flex flex-wrap gap-3">
           <Link className={lightButtonClass} href={`/collections/${collection.slug}`}>
-            Open full board
+            View live rates & history
             <ArrowUpRightIcon />
           </Link>
           <a
-            className="pressable sheen inline-flex min-h-11 items-center justify-center gap-3 border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/18"
+            className="pressable sheen inline-flex min-h-11 items-center justify-center gap-3 border border-white/24 bg-white/14 px-5 py-3 text-sm font-semibold text-white hover:bg-white/20"
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              `Assalam o Alaikum Kamran, please guide me on the ${collection.name} collection.`
+              `Hello, please guide me on the ${collection.name} collection.`
             )}
             target="_blank"
             rel="noreferrer"
           >
-            Ask on WhatsApp
+            Ask about this board
             <ArrowUpRightIcon />
           </a>
         </div>
       </div>
     </aside>
+  );
+}
+
+function HeroTrustMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white/12 px-5 py-6 backdrop-blur-sm">
+      <p className={`${monoClass} text-white/82`}>{label}</p>
+      <p className="mt-3 font-display text-[clamp(1.8rem,3.6vw,2.8rem)] font-semibold leading-none tracking-[-0.05em] text-white">
+        {value}
+      </p>
+    </div>
   );
 }
 
@@ -486,8 +756,8 @@ export function CollectionHubCard({ collection }: { collection: MappedCollection
             </h3>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
               {collection.hasProducts
-                ? `${collection.productCount} live products are already published inside this board.`
-                : "This board is live but still waiting for published products."}
+                ? "Open this board for current rates, recent movement, archive history, and a fast WhatsApp handoff when you want help deciding."
+                : "The board is live and ready for watchlists, even while published products are still being added."}
             </p>
           </div>
 
@@ -500,33 +770,34 @@ export function CollectionHubCard({ collection }: { collection: MappedCollection
 
       <div className="px-5 py-5 sm:px-6">
         {collection.hasProducts ? (
-          <div className="grid gap-3 md:grid-cols-2">
-            {collection.featuredProducts.map((product) => (
-              <div key={product.id} className="motion-lift border border-line bg-panel-strong px-4 py-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className={`${monoClass} text-muted`}>{getTypeLabel(product.type)}</p>
-                    <p className="mt-2 text-sm font-semibold text-foreground">{product.name}</p>
-                  </div>
-                  <MovementBadge direction={product.direction} delta={product.delta} compact />
+          <div className="overflow-hidden border border-line bg-panel-strong">
+            {collection.featuredProducts.slice(0, 2).map((product) => (
+              <div
+                key={product.id}
+                className="motion-row grid gap-3 border-b border-line px-4 py-4 last:border-none md:grid-cols-[minmax(0,1fr)_auto_auto]"
+              >
+                <div>
+                  <p className={`${monoClass} text-muted`}>{getTypeLabel(product.type)}</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">{product.name}</p>
+                  <p className="mt-2 text-sm text-muted">
+                    {product.latestTime ? `Updated ${formatDate(product.latestTime)}` : "Awaiting date"}
+                  </p>
                 </div>
-                <div className="mt-4 flex items-end justify-between gap-4">
-                  <div>
-                    <p className="font-display text-[2.35rem] font-semibold leading-none tracking-[-0.05em] text-foreground">
-                      {formatPriceLac(product.currentPrice)}
-                    </p>
-                    <p className={`${monoClass} mt-2 text-muted`}>
-                      {product.latestTime ? formatDate(product.latestTime) : "Awaiting date"}
-                    </p>
-                  </div>
-                  {product.sparklinePoints.length >= 2 ? (
-                    <div className="w-28">
-                      <MiniTrend points={product.sparklinePoints} direction={product.direction} />
-                    </div>
-                  ) : null}
+                <p className="font-display text-[2.2rem] font-semibold leading-none tracking-[-0.05em] text-foreground md:text-right">
+                  {formatPriceLac(product.currentPrice)}
+                </p>
+                <div className="md:self-center md:justify-self-end">
+                  <MovementBadge direction={product.direction} delta={product.delta} compact />
                 </div>
               </div>
             ))}
+            {collection.featuredProducts.length > 2 ? (
+              <div className="border-t border-line bg-white px-4 py-3">
+                <p className={`${monoClass} text-muted`}>
+                  +{collection.featuredProducts.length - 2} more products on the full board
+                </p>
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="border border-dashed border-line bg-panel-strong px-5 py-6 text-sm leading-7 text-muted">
@@ -536,19 +807,19 @@ export function CollectionHubCard({ collection }: { collection: MappedCollection
 
         <div className="mt-5 flex flex-wrap gap-3">
           <Link className={primaryButtonClass} href={`/collections/${collection.slug}`}>
-            View {collection.name}
+            View live rates
             <ArrowUpRightIcon />
           </Link>
           <a
             className={secondaryButtonClass}
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              `Assalam o Alaikum Kamran, I want the current rates for ${collection.name}.`
+              `Hello, I want the current rates for ${collection.name}.`
             )}
             target="_blank"
             rel="noreferrer"
           >
-            WhatsApp
+            Ask on WhatsApp
             <ArrowUpRightIcon />
           </a>
         </div>
@@ -748,8 +1019,8 @@ export function MarketPulseSection({
     <div className={`${brandSurfaceClass} overflow-hidden px-5 py-8 sm:px-8 lg:px-10`}>
       <SectionHeading
         eyebrow="Market Pulse"
-        title="Movement worth noticing first."
-        description="The pulse ranks products by their latest move. If a product has only one recorded point, it remains visible on the board but drops out of this movers table until a real comparison exists."
+        title="See where the market actually moved."
+        description="The pulse ranks products by their latest change so visitors can spot movement fast instead of scanning every board equally. Products with only one recorded point stay visible elsewhere until a real comparison exists."
         inverse
       />
 
@@ -800,7 +1071,7 @@ export function MarketPulseSection({
                     className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-accent"
                     href={buildWhatsAppUrl(
                       siteMeta.phoneE164,
-                      `Assalam o Alaikum Kamran, I want context on ${product.name} in ${product.collectionName}.`
+                      `Hello, I want context on ${product.name} in ${product.collectionName}.`
                     )}
                     target="_blank"
                     rel="noreferrer"
@@ -820,27 +1091,130 @@ export function MarketPulseSection({
           )}
         </div>
 
-        <div className="sheen border border-white/20 bg-white/10 p-5">
-          <p className={`${monoClass} text-white/72`}>Need context?</p>
+      <div className="sheen border border-white/30 bg-brand-deep/90 p-5">
+          <p className={`${monoClass} text-white/84`}>Need context?</p>
           <h3 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
             Numbers still need a reader.
           </h3>
-          <p className="mt-3 text-sm leading-7 text-white/80">
-            The board shows structure and momentum. Kamran fills the gaps when a collection is thin, a price looks unusual, or you need to compare multiple markets fast.
+          <p className="mt-3 text-sm leading-7 text-white/88">
+            The board shows structure and momentum. The advisory desk fills the gaps when a collection is thin, a price looks unusual, or you need to compare multiple markets fast.
           </p>
           <a
             className={`${lightButtonClass} mt-5`}
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              "Assalam o Alaikum Kamran, please explain the current market pulse."
+              "Hello, please explain the current market pulse."
             )}
             target="_blank"
             rel="noreferrer"
           >
-            Ask Kamran
+            Ask for guidance
             <ArrowUpRightIcon />
           </a>
         </div>
+      </div>
+    </div>
+  );
+}
+
+export function CollectionTodayRatesShowcase({
+  collection,
+  state,
+}: {
+  collection: MappedCollectionSection;
+  state: MarketState;
+}) {
+  const products = collection.groups
+    .flatMap((group) => group.products)
+    .filter((product) => product.currentPrice !== null);
+  const visual = getCollectionVisual(collection.slug);
+  const showcaseTitle =
+    getCollectionRateLabel(products as MappedProductCard[]) === "file rates"
+      ? "Today's File Rates"
+      : "Today's Collection Rates";
+  const showcaseDescription = `${collection.name} live rates, ready to export and share.`;
+
+  return (
+    <div className="theme-inverse animate-rise brand-elevation relative overflow-hidden border border-white/18 bg-[linear-gradient(180deg,#07172f_0%,#0b1834_100%)] px-6 py-8 text-white sm:px-8 lg:px-10 lg:py-10">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0)_26%),radial-gradient(circle_at_bottom_right,rgba(7,85,233,0.28)_0%,rgba(7,85,233,0)_34%)]" />
+
+      <div className="relative z-10">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_24rem] xl:items-start">
+          <div>
+            <div className="inline-flex min-h-10 items-center gap-2 rounded-[999px] border border-white/24 bg-white/12 px-4 py-2 text-white">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#88e592]" />
+              <span className={`${monoClass} text-white/92`}>Live rates</span>
+            </div>
+
+            <h2 className="mt-6 font-display text-[clamp(2.6rem,5vw,4.8rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-white">
+              {showcaseTitle}
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-white/88 sm:text-lg">
+              Updated {collection.latestUpdateLabel} · Monitored by {siteMeta.agencyName}. These cards bring the most relevant live prices forward before the user moves into archive rows or board breakdown.
+            </p>
+
+            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {products.map((product) => (
+                <article
+                  key={product.id}
+                  className="motion-lift overflow-hidden rounded-[20px] border border-white/28 bg-white/18 px-5 py-5 backdrop-blur-sm"
+                >
+                  <p className={`${monoClass} text-white/84`}>{getTypeLabel(product.type)} rate</p>
+                  <h3 className="mt-3 font-display text-[1.85rem] font-semibold leading-[1.02] tracking-[-0.045em] text-white">
+                    {product.name}
+                  </h3>
+
+                  <div className="mt-6 flex items-end gap-3">
+                    <p className="font-display text-[3rem] font-semibold leading-none tracking-[-0.06em] text-white">
+                      {formatPriceLac(product.currentPrice, { showUnit: false })}
+                    </p>
+                    <p className="pb-1 text-sm font-semibold uppercase tracking-[0.16em] text-white/84">
+                      Lac
+                    </p>
+                  </div>
+
+                  <p className="mt-4 text-sm font-medium">
+                    <ShowcaseDeltaLine direction={product.direction} delta={product.delta} />
+                  </p>
+
+                  <a
+                    className="pressable mt-6 inline-flex min-h-11 w-full items-center justify-center gap-3 rounded-[14px] border border-white/24 bg-white/12 px-4 py-3 text-sm font-semibold text-white hover:border-white/40 hover:bg-white/18"
+                    href={buildWhatsAppUrl(
+                      siteMeta.phoneE164,
+                      `Hello, I want buy and sell guidance for ${product.name} in ${collection.name}.`
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Buy / Sell
+                    <ArrowUpRightIcon />
+                  </a>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <RatesSharePanel
+            collectionName={collection.name}
+            headline={showcaseTitle}
+            updatedLabel={collection.latestUpdateLabel}
+            description={showcaseDescription}
+            imageSrc={visual?.src}
+            products={products.map((product) => ({
+              name: product.name,
+              price: product.currentPrice,
+              delta: product.delta,
+              direction: product.direction,
+            }))}
+          />
+        </div>
+        {products.length === 0 ? (
+          <div className="mt-10 border border-dashed border-white/24 bg-white/10 px-5 py-6 text-sm leading-7 text-white/88">
+            {state === "unavailable"
+              ? "The live feed is temporarily unavailable, so today’s rate cards are paused until the connection recovers."
+              : "Published products will appear here as soon as live prices are available for this collection."}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -1032,18 +1406,192 @@ export function TrustAndGuidanceSection({
   );
 }
 
+export function BrandStorySection({
+  preferredVisualSlug,
+}: {
+  preferredVisualSlug?: string;
+}) {
+  const visual =
+    (preferredVisualSlug ? getCollectionVisual(preferredVisualSlug) : null) ??
+    getCollectionVisual("phase-10") ??
+    getCollectionVisual("mangla-green-housing");
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.1fr)]">
+      <div className={`${surfaceClass} overflow-hidden`}>
+        {visual ? (
+          <div className="relative min-h-[22rem] overflow-hidden">
+            <Image
+              src={visual.src}
+              alt={visual.alt}
+              fill
+              sizes="(min-width: 1280px) 36vw, (min-width: 1024px) 42vw, 100vw"
+              className="object-cover"
+              style={visual.objectPosition ? { objectPosition: visual.objectPosition } : undefined}
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,28,75,0.16)_0%,rgba(3,28,75,0.86)_100%)]" />
+            <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+              <p className={`${monoClass} text-white/86`}>{siteMeta.bioEyebrow}</p>
+              <h3 className="mt-3 font-display text-[clamp(2rem,4vw,3.3rem)] font-semibold leading-[0.96] tracking-[-0.05em] text-white [text-shadow:0_8px_24px_rgba(2,8,22,0.28)]">
+                One portal. Multiple live boards.
+              </h3>
+              <p className="mt-3 max-w-xl text-sm leading-7 text-white/92">
+                A cleaner market interface that helps users move from browsing to an informed buy, sell, or hold decision.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-brand-gradient flex min-h-[22rem] items-center justify-center p-8">
+            <BrandMark size={84} />
+          </div>
+        )}
+      </div>
+
+      <div className={`${softSurfaceClass} p-6 sm:p-8`}>
+        <SectionHeading
+          eyebrow={siteMeta.bioEyebrow}
+          title={siteMeta.bioTitle}
+          description={siteMeta.bioDescription}
+        />
+
+        <div className="mt-8 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-3">
+          {siteMeta.bioHighlights.map((highlight) => (
+            <div key={highlight} className="bg-white px-4 py-5">
+              <p className={`${monoClass} text-accent`}>Focus</p>
+              <p className="mt-3 text-sm font-semibold leading-7 text-foreground">{highlight}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+          <div className="border border-line bg-white px-5 py-5">
+            <p className={`${monoClass} text-muted`}>Short bio</p>
+            <p className="mt-3 text-sm leading-7 text-muted">
+              Property Portals is structured as a live market hub with dedicated collection pages, clearer section hierarchy, and direct contact paths for serious visitors. It is built to look trustworthy, feel lightweight, and keep decision-making close to the data.
+            </p>
+          </div>
+
+          <div className="bg-brand-gradient border border-white/20 px-5 py-5 text-white">
+            <p className={`${monoClass} text-white/86`}>{siteMeta.visionTitle}</p>
+            <p className="mt-3 text-sm leading-7 text-white/92">{siteMeta.visionDescription}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function OfficeAndCoverageSection({
+  collectionLinks,
+}: {
+  collectionLinks: CollectionLink[];
+}) {
+  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
+    siteMeta.officeMapQuery
+  )}&z=15&output=embed`;
+  const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    siteMeta.officeMapQuery
+  )}`;
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.14fr)_minmax(320px,0.86fr)]">
+      <div className={`${surfaceClass} overflow-hidden`}>
+        <div className="border-b border-line px-5 py-6 sm:px-8">
+          <SectionHeading
+            eyebrow="Office And Coverage"
+            title="Put the office, map, and active collections in the same trust block."
+            description="This section gives the page a real-world anchor. Users can verify the office location, open the map, and jump directly into the collection they care about."
+          />
+        </div>
+
+        <div className="grid gap-px bg-line lg:grid-cols-[minmax(0,1.08fr)_minmax(280px,0.92fr)]">
+          <div className="bg-white p-3 sm:p-4">
+            <div className="overflow-hidden border border-line bg-panel-strong">
+              <iframe
+                title="Office location map"
+                src={mapSrc}
+                loading="lazy"
+                className="min-h-[22rem] w-full border-0"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </div>
+
+          <div className="bg-panel-strong p-6 sm:p-8">
+            <p className={`${monoClass} text-accent`}>Office</p>
+            <h3 className="mt-3 font-display text-[clamp(2rem,3.5vw,3rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-foreground">
+              {siteMeta.address}
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-muted">
+              Visible office information makes the portal feel more accountable. Keep the address live, keep the map close, and keep the route to advice simple.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a className={primaryButtonClass} href={mapHref} target="_blank" rel="noreferrer">
+                Open map
+                <ArrowUpRightIcon />
+              </a>
+              <a className={secondaryButtonClass} href={`tel:${siteMeta.phoneE164}`}>
+                Call advisory desk
+              </a>
+            </div>
+
+            <div className="mt-8 border border-line bg-white px-4 py-5">
+              <p className={`${monoClass} text-muted`}>Collections</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {collectionLinks.length > 0 ? (
+                  collectionLinks.map((collection) => (
+                    <Link key={collection.slug} className={chipClass} href={`/collections/${collection.slug}`}>
+                      {collection.label}
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted">
+                    Collection links will appear here as soon as the CMS has published boards.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${softSurfaceClass} p-6 sm:p-8`}>
+        <p className={`${monoClass} text-accent`}>Social Channels</p>
+        <h3 className="mt-3 font-display text-[clamp(2rem,3.5vw,3rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-foreground">
+          Keep the contact paths visible beyond the form.
+        </h3>
+        <p className="mt-4 text-sm leading-7 text-muted">
+          Add direct access to Instagram, TikTok, and Facebook so the portal feels active outside the landing page itself.
+        </p>
+
+        <SocialLinks labeled className="mt-6" />
+
+        <div className="bg-brand-gradient mt-6 border border-white/20 px-5 py-5 text-white">
+          <p className={`${monoClass} text-white/86`}>Practical note</p>
+          <p className="mt-3 text-sm leading-7 text-white/92">
+            The strongest property portals do not hide trust behind one form. They show office visibility, public social channels, and multiple ways to continue the conversation.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ConsultationSection({
   title,
   description,
   fileTypes,
+  quickMessage,
 }: {
   title: string;
   description: string;
   fileTypes: string[];
+  quickMessage?: string;
 }) {
   return (
     <div className="grid overflow-hidden border border-line bg-white lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-      <div className="relative overflow-hidden bg-[var(--brand-gradient)] px-5 py-8 text-white sm:px-8 lg:px-10 lg:py-10">
+      <div className="theme-inverse bg-brand-gradient relative overflow-hidden px-5 py-8 text-white sm:px-8 lg:px-10 lg:py-10">
         <div className="pointer-events-none absolute -right-28 -top-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.35)_0%,rgba(255,255,255,0)_70%)] blur-3xl" />
         <div className="relative space-y-6">
           <SectionHeading
@@ -1053,7 +1601,7 @@ export function ConsultationSection({
             inverse
           />
 
-          <ul className="space-y-3 text-sm leading-7 text-white/82">
+          <ul className="space-y-3 text-sm leading-7 text-white/92">
             {siteMeta.consultationBenefits.map((benefit) => (
               <li key={benefit} className="flex items-start gap-3">
                 <span className="mt-1 inline-flex h-6 w-6 items-center justify-center border border-white/24 bg-white/12 text-white">
@@ -1064,15 +1612,15 @@ export function ConsultationSection({
             ))}
           </ul>
 
-          <div className="sheen border border-white/20 bg-white/10 p-5">
-            <p className={`${monoClass} text-white/72`}>Human operator</p>
+          <div className="sheen border border-white/22 bg-white/14 p-5">
+            <p className={`${monoClass} text-white/86`}>Advisory desk</p>
             <p className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
               {siteMeta.expertName}
             </p>
-            <p className="mt-2 text-sm leading-7 text-white/82">{siteMeta.agencyName}</p>
-            <p className="text-sm leading-7 text-white/82">{siteMeta.address}</p>
+            <p className="mt-2 text-sm leading-7 text-white/92">{siteMeta.agencyName}</p>
+            <p className="text-sm leading-7 text-white/92">{siteMeta.address}</p>
             <a
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-white/70"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-white/84"
               href={`tel:${siteMeta.phoneE164}`}
             >
               {siteMeta.phoneDisplay}
@@ -1085,11 +1633,36 @@ export function ConsultationSection({
       <div className="bg-white px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
         <p className={`${monoClass} text-muted`}>Get market guidance</p>
         <h2 className="mt-3 font-display text-[clamp(2.2rem,4vw,3.6rem)] font-semibold leading-[0.96] tracking-[-0.05em] text-foreground">
-          Ask for context before you act on one quoted price.
+          Get a human read on the market in under a minute.
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          The form does not hit a backend. It simply prepares a WhatsApp message with the collection or product details the visitor has shared.
+          Choose your intent, optionally add the collection or product, and open WhatsApp with the right context already filled in.
         </p>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <a
+            className={primaryButtonClass}
+            href={buildWhatsAppUrl(
+              siteMeta.phoneE164,
+              quickMessage ?? "Hello, I want help with the current property market."
+            )}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open WhatsApp now
+            <ArrowUpRightIcon />
+          </a>
+          <p className="text-sm text-muted">Prefer to add more context first? Use the form below.</p>
+        </div>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
+          {consultationExpectations.map((item) => (
+            <div key={item.title} className="border border-line bg-panel-strong px-4 py-4">
+              <p className={`${monoClass} text-accent`}>{item.title}</p>
+              <p className="mt-3 text-sm leading-7 text-muted">{item.description}</p>
+            </div>
+          ))}
+        </div>
 
         <div className="mt-8 border border-line bg-panel-strong p-5 sm:p-6">
           <ConsultationForm
@@ -1109,18 +1682,16 @@ export function SiteFooter({ pageLinks }: { pageLinks: PageLink[] }) {
     <footer className={`${darkSurfaceClass} border-x-0 border-b-0`}>
       <div className={`${shellClass} grid gap-10 py-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)] lg:py-16`}>
         <div>
-          <p className="font-display text-4xl font-semibold tracking-[-0.05em] text-white">
-            {siteMeta.brandName}
-          </p>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-white/70">
-            A premium collection hub for public-facing market boards, with direct WhatsApp guidance when the data alone is not enough.
+          <BrandLockup compact caption="Live collection boards" inverse />
+          <p className="mt-4 max-w-xl text-sm leading-7 text-white/86">
+            A refined property portal for public-facing collection boards, market context, budgeting tools, and direct advisory contact when the data alone is not enough.
           </p>
           <SocialLinks footer />
         </div>
 
         <div>
-          <p className={`${monoClass} text-white/72`}>Quick Links</p>
-          <div className="mt-4 flex flex-col gap-3 text-sm text-white/72">
+          <p className={`${monoClass} text-white/84`}>Quick Links</p>
+          <div className="mt-4 flex flex-col gap-3 text-sm text-white/84">
             {pageLinks.map((link) => (
               <a key={link.href} href={link.href} className="transition hover:text-white">
                 {link.label}
@@ -1133,19 +1704,19 @@ export function SiteFooter({ pageLinks }: { pageLinks: PageLink[] }) {
         </div>
 
         <div>
-          <p className={`${monoClass} text-white/72`}>Contact</p>
-          <div className="mt-4 space-y-3 text-sm leading-7 text-white/72">
+          <p className={`${monoClass} text-white/84`}>Contact</p>
+          <div className="mt-4 space-y-3 text-sm leading-7 text-white/84">
             <p>{siteMeta.agencyName}</p>
             <p>{siteMeta.address}</p>
             <a href={`tel:${siteMeta.phoneE164}`} className="block transition hover:text-white">
-              WhatsApp / Call: {siteMeta.phoneDisplay}
+              Advisory line: {siteMeta.phoneDisplay}
             </a>
           </div>
         </div>
       </div>
 
       <div className="border-t border-white/12">
-        <div className={`${shellClass} flex flex-col gap-3 py-5 text-sm text-white/60 lg:flex-row lg:items-center lg:justify-between`}>
+        <div className={`${shellClass} flex flex-col gap-3 py-5 text-sm text-white/84 lg:flex-row lg:items-center lg:justify-between`}>
           <p>© 2026 {siteMeta.brandName}. All rights reserved.</p>
           <p className="max-w-3xl">{siteMeta.disclaimer}</p>
         </div>
@@ -1238,7 +1809,7 @@ function ProductBoardCard({ product }: { product: MappedProductCard }) {
             className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-accent"
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              `Assalam o Alaikum Kamran, please guide me on ${product.name} in ${product.collectionName}.`
+              `Hello, please guide me on ${product.name} in ${product.collectionName}.`
             )}
             target="_blank"
             rel="noreferrer"
@@ -1295,15 +1866,15 @@ function CollectionEmptyState({
       </div>
 
       <div className={`${brandSurfaceClass} sheen p-5`}>
-        <p className={`${monoClass} text-white/72`}>Interim action</p>
-        <p className="mt-3 text-sm leading-7 text-white/80">
+        <p className={`${monoClass} text-white/84`}>Interim action</p>
+        <p className="mt-3 text-sm leading-7 text-white/90">
           If this is the board you care about, use WhatsApp now and ask whether the market is awaiting publication or simply waiting for the next manual update.
         </p>
         <a
           className={`${lightButtonClass} mt-5`}
           href={buildWhatsAppUrl(
             siteMeta.phoneE164,
-            `Assalam o Alaikum Kamran, please share the current situation for ${collectionName}.`
+            `Hello, please share the current situation for ${collectionName}.`
           )}
           target="_blank"
           rel="noreferrer"
@@ -1336,7 +1907,7 @@ function MovementBadge({
       <span
         className={`${baseClass} ${
           inverse
-            ? "border border-white/20 bg-white/10 text-white/78"
+            ? "border border-white/24 bg-white/14 text-white/90"
             : "border border-line bg-white text-muted"
         }`}
       >
@@ -1381,8 +1952,8 @@ function MovementBadge({
 
 function MetricTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white/8 px-4 py-4">
-      <p className={`${monoClass} text-white/72`}>{label}</p>
+    <div className="bg-white/22 px-4 py-4">
+      <p className={`${monoClass} text-white/84`}>{label}</p>
       <p className="mt-3 font-display text-[1.9rem] font-semibold tracking-[-0.04em] text-white">
         {value}
       </p>
@@ -1447,32 +2018,90 @@ function SocialLinks({
   compact = false,
   footer = false,
   inverse = false,
+  labeled = false,
+  className = "",
 }: {
   compact?: boolean;
   footer?: boolean;
   inverse?: boolean;
+  labeled?: boolean;
+  className?: string;
 }) {
+  if (labeled) {
+    return (
+      <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+        {siteMeta.socialLinks.map((social) => (
+          <a
+            key={social.label}
+            className="pressable inline-flex min-h-11 items-center gap-3 border border-line bg-white px-4 py-3 text-sm font-semibold text-foreground hover:border-accent hover:text-accent"
+            href={social.href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={social.label}
+          >
+            <span className="inline-flex h-8 w-8 items-center justify-center border border-line bg-panel-strong text-muted">
+              <SocialIcon label={social.label} className="h-4.5 w-4.5" />
+            </span>
+            {social.label}
+          </a>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${compact || footer ? "" : "mt-5"}`}>
-      {siteMeta.socialLinks.map((social) => (
-        <a
-          key={social.label}
-          className={`pressable inline-flex h-10 w-10 items-center justify-center border text-xs font-semibold uppercase tracking-[0.16em] ${
-            footer
-              ? "border-white/16 bg-white/6 text-white/72 hover:border-white/32 hover:text-white"
-              : inverse
-                ? "border-white/16 bg-white/6 text-white/72 hover:border-white/32 hover:text-white"
-              : "border-line bg-white text-foreground hover:border-accent hover:text-accent"
-          }`}
-          href={social.href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={social.label}
-        >
-          {social.shortLabel}
-        </a>
-      ))}
+      <div className={`flex flex-wrap items-center gap-2 ${compact || footer ? "" : "mt-5"} ${className}`}>
+        {siteMeta.socialLinks.map((social) => (
+          <a
+            key={social.label}
+            className={`pressable inline-flex ${compact ? "h-8 w-8" : "h-10 w-10"} items-center justify-center rounded-[10px] border text-xs font-semibold uppercase tracking-[0.16em] ${
+              footer
+                ? "border-white/18 bg-white/10 text-white/88 hover:border-white/32 hover:text-white"
+                : inverse
+                  ? "border-white/18 bg-white/10 text-white/88 hover:border-white/32 hover:text-white"
+                  : "border-line bg-white text-foreground hover:border-accent hover:text-accent"
+            }`}
+            href={social.href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={social.label}
+          >
+            <SocialIcon label={social.label} className="h-4.5 w-4.5" />
+          </a>
+        ))}
     </div>
+  );
+}
+
+function SocialIcon({
+  label,
+  className = "h-4.5 w-4.5",
+}: {
+  label: string;
+  className?: string;
+}) {
+  if (label === "Instagram") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="17.4" cy="6.8" r="1.2" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  if (label === "TikTok") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+        <path d="M14.78 3c.34 1.87 1.36 3.23 3.22 3.72v2.56c-1.24-.03-2.28-.38-3.22-1.02v5.66c0 3.31-2.04 5.61-5.38 5.61-3.13 0-5.4-2.16-5.4-5.16 0-3.15 2.48-5.34 5.75-5.12v2.61c-1.57-.16-2.96.73-2.96 2.45 0 1.33.98 2.42 2.37 2.42 1.59 0 2.8-1.03 2.8-3.18V3h2.82Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+      <path d="M13.37 20v-7.29h2.45l.37-2.84h-2.82V8.05c0-.82.23-1.38 1.4-1.38H16V4.12c-.55-.08-1.35-.12-2.27-.12-2.24 0-3.77 1.37-3.77 3.89v1.98H7.43v2.84h2.53V20h3.41Z" />
+    </svg>
   );
 }
 
@@ -1482,6 +2111,62 @@ function ArrowUpRightIcon() {
       <path d="M7 17 17 7" />
       <path d="M8 7h9v9" />
     </svg>
+  );
+}
+
+function TickerDelta({
+  direction,
+  delta,
+}: {
+  direction: MarketDirection;
+  delta: number | null;
+}) {
+  if (delta === null || direction === null) {
+    return <span className="font-medium text-muted">—</span>;
+  }
+
+  if (direction === "flat") {
+    return <span className="font-medium text-muted">—</span>;
+  }
+
+  const isUp = direction === "up";
+
+  return (
+    <span className={`font-semibold ${isUp ? "text-accent" : "text-danger"}`}>
+      {isUp ? "▲" : "▼"} {formatPriceLac(Math.abs(delta), { showUnit: false })}
+    </span>
+  );
+}
+
+function getCollectionTrustHeading(collectionName: string, rateLabel: string) {
+  if (rateLabel === "market rates") {
+    return `Dedicated ${collectionName} board with live updates`;
+  }
+
+  return `Dedicated ${collectionName} ${rateLabel} board with live updates`;
+}
+
+function ShowcaseDeltaLine({
+  direction,
+  delta,
+}: {
+  direction: MarketDirection;
+  delta: number | null;
+}) {
+  if (direction === null || delta === null) {
+    return <span className="text-white/84">No change available yet</span>;
+  }
+
+  if (direction === "flat") {
+    return <span className="text-white/84">No change today</span>;
+  }
+
+  const isUp = direction === "up";
+
+  return (
+    <span className={isUp ? "text-[#88e592]" : "text-[#ff8b8b]"}>
+      {isUp ? "▲" : "▼"} {formatPriceLac(Math.abs(delta), { showUnit: false })} today
+    </span>
   );
 }
 

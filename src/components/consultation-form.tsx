@@ -34,7 +34,6 @@ export function ConsultationForm({
   fileTypes,
 }: ConsultationFormProps) {
   const [form, setForm] = useState<FormState>(initialState);
-  const [error, setError] = useState<string | null>(null);
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -42,22 +41,18 @@ export function ConsultationForm({
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (!form.name.trim() || !form.whatsapp.trim() || !form.intent) {
-      setError("Name, WhatsApp number, and intent are required.");
-      return;
-    }
-
-    setError(null);
+    const trimmedName = form.name.trim();
+    const trimmedWhatsapp = form.whatsapp.trim();
+    const trimmedMessage = form.message.trim();
 
     const messageLines = [
-      `Assalam o Alaikum ${expertName},`,
-      `My name is ${form.name.trim()}.`,
-      `WhatsApp: ${form.whatsapp.trim()}`,
-      `Intent: ${form.intent}`,
+      `Hello ${expertName},`,
+      trimmedName ? `My name is ${trimmedName}.` : "I want market guidance.",
+      `Intent: ${form.intent || "Need help deciding"}`,
       `Product or collection: ${form.fileType || "Not sure yet"}`,
-      form.message.trim() ? `Message: ${form.message.trim()}` : "",
-      "Please share current guidance on the relevant collection or product.",
+      trimmedWhatsapp ? `Reply on WhatsApp: ${trimmedWhatsapp}` : "",
+      trimmedMessage ? `Context: ${trimmedMessage}` : "",
+      "Please share the next best step based on the current market context.",
     ].filter(Boolean);
 
     window.open(buildWhatsAppUrl(phoneE164, messageLines.join("\n")), "_blank", "noopener,noreferrer");
@@ -68,7 +63,7 @@ export function ConsultationForm({
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="space-y-2 text-sm text-foreground/80">
           <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
-            Your Name
+            Your Name · Optional
           </span>
           <input
             className="w-full border border-line bg-white px-4 py-3 text-base outline-none ring-0 placeholder:text-muted focus:border-accent"
@@ -81,7 +76,7 @@ export function ConsultationForm({
 
         <label className="space-y-2 text-sm text-foreground/80">
           <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
-            WhatsApp Number
+            WhatsApp Number · Optional
           </span>
           <input
             className="w-full border border-line bg-white px-4 py-3 text-base outline-none ring-0 placeholder:text-muted focus:border-accent"
@@ -136,29 +131,27 @@ export function ConsultationForm({
 
       <label className="space-y-2 text-sm text-foreground/80">
         <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
-          Message
+          Message · Optional
         </span>
         <textarea
           className="min-h-32 w-full border border-line bg-white px-4 py-3 text-base outline-none ring-0 placeholder:text-muted focus:border-accent"
           name="message"
-          placeholder="Tell Kamran what you want to compare, buy, sell, or verify."
+          placeholder="Tell the desk what you want to compare, buy, sell, or verify."
           value={form.message}
           onChange={(event) => updateField("message", event.target.value)}
         />
       </label>
 
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
-
       <button
         type="submit"
-        className="pressable sheen flex w-full min-h-11 items-center justify-center gap-3 border border-accent bg-accent px-6 py-4 text-sm font-semibold text-white hover:border-brand-deep hover:bg-brand-deep sm:w-auto"
+        className="pressable sheen bg-brand-gradient flex w-full min-h-13 items-center justify-center gap-3 border border-accent px-7 py-4 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(7,85,233,0.22)] hover:border-brand-deep hover:shadow-[0_22px_44px_rgba(7,85,233,0.26)] sm:w-auto"
       >
-        Send to Kamran on WhatsApp
+        Send on WhatsApp
         <ArrowUpRightIcon />
       </button>
 
       <p className="text-sm text-muted">
-        Your information stays in this browser session and is only used to prefill a WhatsApp message.
+        Every field is optional. Your details stay in this browser session and are only used to prefill a WhatsApp message.
       </p>
     </form>
   );
