@@ -1943,7 +1943,11 @@ export function SiteFooter({ pageLinks }: { pageLinks: PageLink[] }) {
 
       <div className="border-t border-white/12">
         <div className="shell flex flex-col gap-3 py-5 text-sm text-white/84 lg:flex-row lg:items-center lg:justify-between">
-          <p>© 2026 {siteMeta.brandName}. All rights reserved.</p>
+          <div className="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-4">
+            <p>© 2026 {siteMeta.brandName}. All rights reserved.</p>
+            <p className="text-white/48">•</p>
+            <p>developed with ❤️ by tkturners.com</p>
+          </div>
           <p className="max-w-3xl">{siteMeta.disclaimer}</p>
         </div>
       </div>
