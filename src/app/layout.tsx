@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
+
+import {
+  defaultSocialImagePath,
+  officeAddressSchema,
+  siteMeta,
+  siteOrigin,
+} from "@/data/landing-content";
+
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -9,15 +17,14 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-const siteUrl = "https://property-portals.com";
+const siteUrl = siteOrigin;
 
 export const metadata: Metadata = {
   title: {
-    default: "Property Portals | Live Collection Boards",
-    template: "%s | Property Portals",
+    default: siteMeta.brandName,
+    template: `%s | ${siteMeta.brandName}`,
   },
-  description:
-    "Compare live property rates, shortlist collections, and get WhatsApp guidance before you move.",
+  description: siteMeta.heroDescription,
   keywords: [
     "property portal",
     "property rates",
@@ -29,20 +36,18 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "en_PK",
     url: siteUrl,
-    siteName: "Property Portals",
-    title: "Property Portals | Live Collection Boards",
-    description:
-      "Compare live property rates, shortlist collections, and get WhatsApp guidance before you move.",
-    images: ["/og-image.png"],
+    siteName: siteMeta.brandName,
+    title: siteMeta.siteTitle,
+    description: siteMeta.heroDescription,
+    images: [defaultSocialImagePath],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Property Portals | Live Collection Boards",
-    description:
-      "Compare live property rates, shortlist collections, and get WhatsApp guidance.",
-    images: ["/og-image.png"],
+    title: siteMeta.siteTitle,
+    description: siteMeta.heroDescription,
+    images: [defaultSocialImagePath],
   },
   robots: {
     index: true,
@@ -80,22 +85,24 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "RealEstateAgent",
-              "name": "Property Portals",
+              name: siteMeta.brandName,
               description:
-                "Premium property portal with live collection boards for property rates and market data in Pakistan.",
-              telephone: "+923009484188",
+                "Premium property portal with live collection boards, market movement, and direct WhatsApp guidance in Lahore, Pakistan.",
+              telephone: siteMeta.phoneDisplay,
               url: siteUrl,
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "30 N Gould St Ste R",
-                addressLocality: "Sheridan",
-                addressRegion: "WY",
-                postalCode: "82801",
-                addressCountry: "US",
+                ...officeAddressSchema,
               },
-              sameAs: [
-                "https://www.instagram.com/tkturners_official/",
-                "https://www.tiktok.com/@tkturners",
+              areaServed: "Lahore, Pakistan",
+              sameAs: siteMeta.socialLinks.map((link) => link.href),
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  contactType: "customer support",
+                  telephone: siteMeta.phoneDisplay,
+                  availableLanguage: ["en", "ur"],
+                },
               ],
             }),
           }}

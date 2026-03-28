@@ -1,5 +1,6 @@
 "use client";
 
+import { siteMeta } from "@/data/landing-content";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
@@ -19,6 +20,16 @@ type RatesSharePanelProps = {
   description: string;
   imageSrc?: string | null;
   products: ShareProduct[];
+};
+
+const SHARE_ADVISOR_IMAGE_SRC =
+  "/brand/property-portals-advisor-share-card-trimmed.png";
+
+type ShareContactRow = {
+  label: string;
+  value: string;
+  tint: string;
+  textColor: string;
 };
 
 export function RatesSharePanel({
@@ -110,7 +121,7 @@ export function RatesSharePanel({
 
     const anchor = document.createElement("a");
     anchor.href = previewUrl;
-    anchor.download = `${toSlug(collectionName)}-rates.png`;
+    anchor.download = `property-portals-${toSlug(collectionName)}-live-rates.png`;
     anchor.click();
   }
 
@@ -204,8 +215,6 @@ export function RatesSharePanel({
 async function generatePreview({
   collectionName,
   headline,
-  updatedLabel,
-  description,
   imageSrc,
   products,
 }: RatesSharePanelProps) {
@@ -233,6 +242,8 @@ async function generatePreview({
 
   drawGrid(context, width, height);
 
+  const advisorImage = await loadImage(SHARE_ADVISOR_IMAGE_SRC);
+
   if (imageSrc) {
     const image = await loadImage(imageSrc);
 
@@ -251,7 +262,56 @@ async function generatePreview({
   context.fillStyle = gradient;
   context.fillRect(0, 0, width, height);
 
-  roundedRect(context, 412, 86, 376, 58, 29);
+  const boardX = 84;
+  const boardWidth = 716;
+  const boardCenterX = boardX + boardWidth / 2;
+  const boardInset = 38;
+  const rightRailX = boardX + boardWidth + 36;
+  const rightRailWidth = 312;
+  const rightRailY = 624;
+  const rightRailHeight = 604;
+  const railInset = 24;
+  const advisorWidth = 188;
+  const advisorHeight = advisorImage ? (advisorWidth * advisorImage.height) / advisorImage.width : 0;
+  const contactCardX = rightRailX + railInset;
+  const contactCardY = rightRailY + 28;
+  const contactCardWidth = rightRailWidth - railInset * 2;
+  const contactRows = getShareContactRows();
+  const [phoneRow, ...socialRows] = contactRows;
+  const phoneCardY = contactCardY + 88;
+  const phoneCardHeight = 58;
+  const socialCardY = phoneCardY + phoneCardHeight + 18;
+  const socialCardHeight = 34;
+  const portraitFrameX = rightRailX + 18;
+  const portraitFrameY = socialCardY + socialRows.length * (socialCardHeight + 8) + 24;
+  const portraitFrameWidth = rightRailWidth - 36;
+  const portraitFrameHeight = rightRailY + rightRailHeight - portraitFrameY - 22;
+  const advisorX = portraitFrameX + Math.round((portraitFrameWidth - advisorWidth) / 2);
+  const advisorY = portraitFrameY + portraitFrameHeight - advisorHeight - 6;
+  const phoneFontSize =
+    phoneRow === undefined
+      ? 18
+      : fitFontSize(context, phoneRow.value, {
+          maxWidth: contactCardWidth - 56,
+          maxSize: 24,
+          minSize: 18,
+          fontWeight: 700,
+          fontFamily: "'IBM Plex Mono', monospace",
+        });
+  const titleLayout = fitWrappedText(context, collectionName, {
+    maxWidth: boardWidth - 56,
+    maxSize: 76,
+    minSize: 52,
+    maxLines: 2,
+    fontWeight: 700,
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+  });
+  const titleStartY = titleLayout.lines.length === 1 ? 238 : 206;
+  const titleLineHeight = titleLayout.lines.length === 1 ? 76 : Math.round(titleLayout.fontSize * 1.08);
+  const headerOffset = titleLayout.lines.length === 1 ? 0 : 22;
+  const shareDateLabel = formatShareCurrentDate();
+
+  roundedRect(context, boardCenterX - 188, 86, 376, 58, 29);
   context.fillStyle = "rgba(255,255,255,0.14)";
   context.fill();
   context.strokeStyle = "rgba(255,255,255,0.28)";
@@ -260,43 +320,56 @@ async function generatePreview({
 
   context.fillStyle = "#88e592";
   context.beginPath();
-  context.arc(452, 115, 8, 0, Math.PI * 2);
+  context.arc(boardCenterX - 148, 115, 8, 0, Math.PI * 2);
   context.fill();
 
   context.fillStyle = "#f8fbff";
   context.font = "600 22px 'IBM Plex Mono', monospace";
-  context.fillText("LIVE MARKET DATA", 474, 123);
+  context.fillText("LIVE MARKET DATA", boardCenterX - 126, 123);
 
   context.fillStyle = "#ffffff";
-  context.font = "700 76px 'Plus Jakarta Sans', sans-serif";
+  context.font = `700 ${titleLayout.fontSize}px 'Plus Jakarta Sans', sans-serif`;
   context.textAlign = "center";
-  context.fillText(collectionName, width / 2, 238);
+  drawCenteredLines(context, titleLayout.lines, boardCenterX, titleStartY, titleLineHeight);
 
   context.fillStyle = "#dce9ff";
   context.font = "700 56px 'Plus Jakarta Sans', sans-serif";
-  context.fillText(headline, width / 2, 314);
-
-  context.fillStyle = "rgba(255,255,255,0.84)";
-  context.font = "500 24px 'Plus Jakarta Sans', sans-serif";
-  wrapCenteredText(context, description, width / 2, 380, 820, 42);
+  context.fillText(headline, boardCenterX, 314 + headerOffset);
 
   context.strokeStyle = "rgba(255,255,255,0.22)";
   context.lineWidth = 2;
   context.beginPath();
-  context.moveTo(132, 474);
-  context.lineTo(width - 132, 474);
+  context.moveTo(boardX + boardInset, 426 + headerOffset);
+  context.lineTo(boardX + boardWidth - boardInset, 426 + headerOffset);
   context.stroke();
 
   context.fillStyle = "rgba(255,255,255,0.88)";
   context.font = "600 22px 'Plus Jakarta Sans', sans-serif";
-  context.fillText(`Updated ${updatedLabel}`, width / 2, 444);
+  context.fillText(shareDateLabel, boardCenterX, 390 + headerOffset);
 
-  let y = 548;
+  let y = 500 + headerOffset;
   const rows = products.slice(0, 7);
   rows.forEach((product, index) => {
     const isEven = index % 2 === 0;
+    const priceLabel =
+      product.price === null ? "Pending" : `${formatPriceLac(product.price)} Lac`;
+    const deltaLabel = getDeltaText(product.direction, product.delta);
 
-    roundedRect(context, 110, y - 42, width - 220, 92, 18);
+    context.font = "700 40px 'IBM Plex Mono', monospace";
+    const priceWidth = context.measureText(priceLabel).width;
+    context.font = "600 22px 'IBM Plex Mono', monospace";
+    const deltaWidth = context.measureText(deltaLabel).width;
+    const valueColumnWidth = Math.max(priceWidth, deltaWidth);
+    const nameMaxWidth = Math.max(220, boardWidth - 96 - valueColumnWidth);
+    const nameFontSize = fitFontSize(context, product.name, {
+      maxWidth: nameMaxWidth,
+      maxSize: 30,
+      minSize: 24,
+      fontWeight: 700,
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+    });
+
+    roundedRect(context, boardX, y - 42, boardWidth, 92, 18);
     context.fillStyle = isEven ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.045)";
     context.fill();
     context.strokeStyle = "rgba(255,255,255,0.06)";
@@ -305,26 +378,152 @@ async function generatePreview({
 
     context.fillStyle = "#ffffff";
     context.textAlign = "left";
-    context.font = "700 32px 'Plus Jakarta Sans', sans-serif";
-    context.fillText(product.name, 154, y + 10);
+    context.font = `700 ${nameFontSize}px 'Plus Jakarta Sans', sans-serif`;
+    context.fillText(truncateTextToWidth(context, product.name, nameMaxWidth), boardX + 34, y + 10);
 
     context.textAlign = "right";
     context.font = "700 40px 'IBM Plex Mono', monospace";
     context.fillStyle = "#eef4ff";
-    context.fillText(
-      product.price === null ? "Pending" : `${formatPriceLac(product.price)} Lac`,
-      width - 154,
-      y + 8
-    );
+    context.fillText(priceLabel, boardX + boardWidth - 34, y + 8);
 
     context.font = "600 22px 'IBM Plex Mono', monospace";
     context.fillStyle = getDeltaColor(product.direction);
-    context.fillText(getDeltaText(product.direction, product.delta), width - 154, y + 40);
+    context.fillText(deltaLabel, boardX + boardWidth - 34, y + 40);
 
     y += 104;
   });
 
-  roundedRect(context, 96, height - 224, width - 192, 138, 18);
+  roundedRect(context, rightRailX, rightRailY, rightRailWidth, rightRailHeight, 26);
+  context.fillStyle = "rgba(9,22,48,0.54)";
+  context.fill();
+  context.strokeStyle = "rgba(255,255,255,0.12)";
+  context.lineWidth = 1.5;
+  context.stroke();
+
+  const railGradient = context.createLinearGradient(rightRailX, rightRailY, rightRailX, rightRailY + rightRailHeight);
+  railGradient.addColorStop(0, "rgba(255,255,255,0.05)");
+  railGradient.addColorStop(1, "rgba(255,255,255,0)");
+  roundedRect(context, rightRailX + 1, rightRailY + 1, rightRailWidth - 2, rightRailHeight - 2, 25);
+  context.fillStyle = railGradient;
+  context.fill();
+
+  context.fillStyle = "rgba(220,233,255,0.8)";
+  context.textAlign = "left";
+  context.font = "600 16px 'IBM Plex Mono', monospace";
+  context.fillText("ADVISORY DESK", contactCardX + 28, contactCardY + 36);
+
+  context.fillStyle = "#ffffff";
+  context.font = "700 28px 'Plus Jakarta Sans', sans-serif";
+  context.fillText("Reach The Desk", contactCardX + 28, contactCardY + 72);
+
+  if (phoneRow) {
+    roundedRect(context, contactCardX, phoneCardY, contactCardWidth, phoneCardHeight, 18);
+    context.fillStyle = "rgba(255,255,255,0.085)";
+    context.fill();
+    context.strokeStyle = "rgba(136,229,146,0.18)";
+    context.lineWidth = 1.2;
+    context.stroke();
+
+    roundedRect(context, contactCardX + 18, phoneCardY + 14, 84, 22, 11);
+    context.fillStyle = phoneRow.tint;
+    context.fill();
+
+    context.fillStyle = phoneRow.textColor;
+    context.textAlign = "center";
+    context.font = "700 12px 'IBM Plex Mono', monospace";
+    context.fillText(phoneRow.label, contactCardX + 60, phoneCardY + 28);
+
+    context.fillStyle = "#f8fbff";
+    context.textAlign = "left";
+    context.font = `700 ${phoneFontSize}px 'IBM Plex Mono', monospace`;
+    context.fillText(phoneRow.value, contactCardX + 18, phoneCardY + 51);
+  }
+
+  socialRows.forEach((row, index) => {
+    const rowY = socialCardY + index * (socialCardHeight + 10);
+    const valueFontSize = fitFontSize(context, row.value, {
+      maxWidth: contactCardWidth - 118,
+      maxSize: 16,
+      minSize: 12,
+      fontWeight: 600,
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+    });
+
+    roundedRect(context, contactCardX, rowY, contactCardWidth, socialCardHeight, 14);
+    context.fillStyle = "rgba(255,255,255,0.05)";
+    context.fill();
+
+    roundedRect(context, contactCardX + 12, rowY + 8, 50, 18, 9);
+    context.fillStyle = row.tint;
+    context.fill();
+
+    context.fillStyle = row.textColor;
+    context.textAlign = "center";
+    context.font = "700 10px 'IBM Plex Mono', monospace";
+    context.fillText(row.label, contactCardX + 37, rowY + 21);
+
+    context.fillStyle = "#f8fbff";
+    context.textAlign = "left";
+    context.font = `600 ${valueFontSize}px 'Plus Jakarta Sans', sans-serif`;
+    context.fillText(row.value, contactCardX + 76, rowY + 22);
+  });
+
+  roundedRect(context, portraitFrameX, portraitFrameY, portraitFrameWidth, portraitFrameHeight, 22);
+  const portraitGradient = context.createLinearGradient(
+    portraitFrameX,
+    portraitFrameY,
+    portraitFrameX,
+    portraitFrameY + portraitFrameHeight
+  );
+  portraitGradient.addColorStop(0, "rgba(255,255,255,0.05)");
+  portraitGradient.addColorStop(1, "rgba(255,255,255,0.02)");
+  context.fillStyle = portraitGradient;
+  context.fill();
+  context.strokeStyle = "rgba(255,255,255,0.1)";
+  context.lineWidth = 1.2;
+  context.stroke();
+
+  if (advisorImage) {
+    const advisorGlow = context.createRadialGradient(
+      advisorX + advisorWidth * 0.45,
+      advisorY + advisorHeight * 0.34,
+      28,
+      advisorX + advisorWidth * 0.45,
+      advisorY + advisorHeight * 0.34,
+      220
+    );
+    advisorGlow.addColorStop(0, "rgba(126,169,255,0.20)");
+    advisorGlow.addColorStop(0.5, "rgba(18,47,112,0.16)");
+    advisorGlow.addColorStop(1, "rgba(7,21,45,0)");
+    context.fillStyle = advisorGlow;
+    context.beginPath();
+    context.arc(advisorX + advisorWidth * 0.45, advisorY + advisorHeight * 0.38, 220, 0, Math.PI * 2);
+    context.fill();
+
+    const advisorShadow = context.createRadialGradient(
+      advisorX + advisorWidth * 0.54,
+      advisorY + advisorHeight * 0.98,
+      18,
+      advisorX + advisorWidth * 0.54,
+      advisorY + advisorHeight * 0.98,
+      120
+    );
+    advisorShadow.addColorStop(0, "rgba(2,8,22,0.42)");
+    advisorShadow.addColorStop(1, "rgba(2,8,22,0)");
+    context.fillStyle = advisorShadow;
+    context.beginPath();
+    context.ellipse(advisorX + advisorWidth * 0.54, advisorY + advisorHeight * 0.98, 114, 26, 0, 0, Math.PI * 2);
+    context.fill();
+
+    context.save();
+    context.shadowColor = "rgba(4,12,28,0.48)";
+    context.shadowBlur = 28;
+    context.shadowOffsetY = 18;
+    context.drawImage(advisorImage, advisorX, advisorY, advisorWidth, advisorHeight);
+    context.restore();
+  }
+
+  roundedRect(context, boardX, height - 224, boardWidth, 138, 18);
   context.fillStyle = "rgba(255,255,255,0.08)";
   context.fill();
   context.strokeStyle = "rgba(255,255,255,0.18)";
@@ -333,17 +532,184 @@ async function generatePreview({
   context.fillStyle = "#ffffff";
   context.textAlign = "center";
   context.font = "700 30px 'Plus Jakarta Sans', sans-serif";
-  context.fillText("Property Portals", width / 2, height - 164);
+  context.fillText("Property Portals", boardCenterX, height - 164);
   context.fillStyle = "rgba(255,255,255,0.88)";
   context.font = "600 20px 'Plus Jakarta Sans', sans-serif";
-  context.fillText("Trusted DHA file provider for overseas Pakistanis", width / 2, height - 126);
+  context.fillText("Trusted DHA file provider for overseas Pakistanis", boardCenterX, height - 126);
   context.fillStyle = "#dce9ff";
   context.font = "600 20px 'IBM Plex Mono', monospace";
-  context.fillText("10+ deals completed · Verified files only · Direct from land provider", width / 2, height - 88);
+  context.fillText("10+ deals completed · Verified files only · Direct from land provider", boardCenterX, height - 88);
 
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
 
   return blob ? URL.createObjectURL(blob) : null;
+}
+
+function getShareContactRows(): ShareContactRow[] {
+  const socialRows = siteMeta.socialLinks.slice(0, 2).map((social) => ({
+    label: social.shortLabel.toUpperCase(),
+    value: getShareSocialValue(social.label, social.href),
+    tint:
+      social.label === "Instagram"
+        ? "rgba(255,255,255,0.14)"
+        : "rgba(132,171,255,0.2)",
+    textColor:
+      social.label === "Instagram"
+        ? "#dce9ff"
+        : "#b7d1ff",
+  }));
+
+  return [
+    {
+      label: "PHONE",
+      value: siteMeta.phoneDisplay,
+      tint: "rgba(136,229,146,0.18)",
+      textColor: "#88e592",
+    },
+    ...socialRows,
+  ];
+}
+
+function getShareSocialValue(label: string, href: string) {
+  try {
+    const url = new URL(href);
+    const segments = url.pathname.split("/").filter(Boolean);
+
+    if (label === "Instagram" && segments[0]) {
+      return `@${segments[0]}`;
+    }
+
+    if (label === "Facebook" && segments[0] && segments[0] !== "share") {
+      return `/${segments[0]}`;
+    }
+  } catch {
+    // Fallback to brand naming when the source URL is not a clean profile path.
+  }
+
+  return label === "Facebook" ? siteMeta.brandName : label;
+}
+
+function fitFontSize(
+  context: CanvasRenderingContext2D,
+  text: string,
+  options: {
+    maxWidth: number;
+    maxSize: number;
+    minSize: number;
+    fontWeight: number;
+    fontFamily: string;
+  }
+) {
+  for (let size = options.maxSize; size >= options.minSize; size -= 1) {
+    context.font = `${options.fontWeight} ${size}px ${options.fontFamily}`;
+    if (context.measureText(text).width <= options.maxWidth) {
+      return size;
+    }
+  }
+
+  return options.minSize;
+}
+
+function formatShareCurrentDate() {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date());
+}
+
+function fitWrappedText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  options: {
+    maxWidth: number;
+    maxSize: number;
+    minSize: number;
+    maxLines: number;
+    fontWeight: number;
+    fontFamily: string;
+  }
+) {
+  for (let size = options.maxSize; size >= options.minSize; size -= 2) {
+    context.font = `${options.fontWeight} ${size}px ${options.fontFamily}`;
+    const lines = getWrappedLines(context, text, options.maxWidth);
+    if (lines.length <= options.maxLines) {
+      return { fontSize: size, lines };
+    }
+  }
+
+  context.font = `${options.fontWeight} ${options.minSize}px ${options.fontFamily}`;
+  const fallbackLines = getWrappedLines(context, text, options.maxWidth);
+
+  if (fallbackLines.length <= options.maxLines) {
+    return { fontSize: options.minSize, lines: fallbackLines };
+  }
+
+  const visibleLines = fallbackLines.slice(0, options.maxLines);
+  visibleLines[options.maxLines - 1] = truncateTextToWidth(
+    context,
+    fallbackLines.slice(options.maxLines - 1).join(" "),
+    options.maxWidth
+  );
+
+  return { fontSize: options.minSize, lines: visibleLines };
+}
+
+function getWrappedLines(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number
+) {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let line = "";
+
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (context.measureText(candidate).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+      continue;
+    }
+
+    line = candidate;
+  }
+
+  if (line) {
+    lines.push(line);
+  }
+
+  return lines;
+}
+
+function truncateTextToWidth(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number
+) {
+  if (context.measureText(text).width <= maxWidth) {
+    return text;
+  }
+
+  let value = text;
+
+  while (value.length > 0 && context.measureText(`${value}…`).width > maxWidth) {
+    value = value.slice(0, -1).trimEnd();
+  }
+
+  return `${value}…`;
+}
+
+function drawCenteredLines(
+  context: CanvasRenderingContext2D,
+  lines: string[],
+  x: number,
+  startY: number,
+  lineHeight: number
+) {
+  lines.forEach((line, index) => {
+    context.fillText(line, x, startY + index * lineHeight);
+  });
 }
 
 function drawGrid(context: CanvasRenderingContext2D, width: number, height: number) {
@@ -383,37 +749,6 @@ function roundedRect(
   context.arcTo(x, y + height, x, y, radius);
   context.arcTo(x, y, x + width, y, radius);
   context.closePath();
-}
-
-function wrapCenteredText(
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  startY: number,
-  maxWidth: number,
-  lineHeight: number
-) {
-  const words = text.split(" ");
-  let line = "";
-  let y = startY;
-
-  for (const word of words) {
-    const testLine = `${line}${word} `;
-    const metrics = context.measureText(testLine);
-
-    if (metrics.width > maxWidth && line) {
-      context.fillText(line.trim(), x, y);
-      line = `${word} `;
-      y += lineHeight;
-      continue;
-    }
-
-    line = testLine;
-  }
-
-  if (line) {
-    context.fillText(line.trim(), x, y);
-  }
 }
 
 function getDeltaColor(direction: ShareDirection) {

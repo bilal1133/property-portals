@@ -22,8 +22,6 @@ const initialState: CalculatorState = {
   contingency: 8,
 };
 
-const monoClass = "font-mono text-[0.72rem] uppercase tracking-[0.18em]";
-
 export function ConstructionCalculator() {
   const [state, setState] = useState<CalculatorState>(initialState);
 
@@ -41,21 +39,43 @@ export function ConstructionCalculator() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
-      <div className="border border-line bg-white p-6 sm:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-5">
-          <div>
-            <p className={`${monoClass} text-accent`}>Construction Calculator</p>
-            <h3 className="mt-3 font-display text-[clamp(2rem,4vw,3.4rem)] font-semibold leading-[0.96] tracking-[-0.05em] text-foreground">
-              Budget the build before you move from rates to execution.
-            </h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
+    <div className="grid gap-10 xl:grid-cols-[minmax(0,0.84fr)_minmax(360px,1.16fr)] xl:items-start">
+      <div className="max-w-2xl">
+        <p className="mono-label text-accent">Planning Tool</p>
+        <h2 className="mt-4 font-display text-[clamp(2.8rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-foreground">
+          Budget The Build Before You Commit
+        </h2>
+        <p className="mt-5 text-lg leading-8 text-muted">
+          Estimate grey structure, finishing, and contingency costs so rate decisions can be viewed in a more practical way.
+        </p>
+
+        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <BenefitCard
+            title="Estimate quickly"
+            body="Turn a rate conversation into a build budget in a few inputs."
+          />
+          <BenefitCard
+            title="Use practical assumptions"
+            body="Adjust the structure and finishing rates before you commit to a direction."
+          />
+          <BenefitCard
+            title="Read the board better"
+            body="Pair board rates with construction context before buying, holding, or selling."
+          />
+        </div>
+
+        <div className="mt-8">
+          <p className="mono-label text-muted">Quick area presets</p>
+          <div className="mt-4 flex flex-wrap gap-3">
             {presets.map((preset) => (
               <button
                 key={preset.label}
                 type="button"
-                className="pressable min-h-10 border border-line bg-panel-strong px-4 py-2 text-sm font-semibold text-foreground hover:border-accent hover:text-accent"
+                className={`min-h-11 border px-4 py-3 text-sm font-semibold transition ${
+                  state.area === preset.area
+                    ? "border-accent bg-accent text-white shadow-[0_16px_32px_rgba(7,85,233,0.18)]"
+                    : "border-line bg-white text-foreground hover:border-accent hover:text-accent"
+                }`}
                 onClick={() => updateField("area", preset.area)}
               >
                 {preset.label}
@@ -63,60 +83,76 @@ export function ConstructionCalculator() {
             ))}
           </div>
         </div>
-
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
-          <Field
-            label="Covered area"
-            suffix="sq ft"
-            value={state.area}
-            onChange={(value) => updateField("area", value)}
-          />
-          <Field
-            label="Grey structure rate"
-            suffix="PKR / sq ft"
-            value={state.greyRate}
-            onChange={(value) => updateField("greyRate", value)}
-          />
-          <Field
-            label="Finishing rate"
-            suffix="PKR / sq ft"
-            value={state.finishingRate}
-            onChange={(value) => updateField("finishingRate", value)}
-          />
-          <Field
-            label="Contingency"
-            suffix="%"
-            value={state.contingency}
-            onChange={(value) => updateField("contingency", value)}
-          />
-        </div>
-
-        <p className="mt-5 text-sm leading-7 text-muted">
-          Use this as a fast planning tool for structure plus finishing. It is not a contractor quote, but it gives buyers and sellers a cleaner budget range before the next conversation.
-        </p>
       </div>
 
-      <div className="bg-brand-gradient border border-white/22 p-6 text-white sm:p-8">
-        <p className={`${monoClass} text-white/86`}>Estimated cost</p>
-        <p className="mt-4 font-display text-[clamp(2.4rem,5vw,4.4rem)] font-semibold leading-none tracking-[-0.06em] text-white">
-          {formatCurrency(totalCost)}
-        </p>
-        <p className="mt-3 text-sm leading-7 text-white/92">{formatLac(totalCost)}</p>
+      <div className="overflow-hidden border border-line bg-white shadow-[0_24px_64px_rgba(16,24,40,0.08)]">
+        <div className="grid gap-px bg-line lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.9fr)]">
+          <div className="bg-white p-6 sm:p-8">
+            <p className="mono-label text-accent">Calculator</p>
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
+              <Field
+                label="Covered area"
+                suffix="sq ft"
+                value={state.area}
+                onChange={(value) => updateField("area", value)}
+              />
+              <Field
+                label="Grey structure rate"
+                suffix="PKR / sq ft"
+                value={state.greyRate}
+                onChange={(value) => updateField("greyRate", value)}
+              />
+              <Field
+                label="Finishing rate"
+                suffix="PKR / sq ft"
+                value={state.finishingRate}
+                onChange={(value) => updateField("finishingRate", value)}
+              />
+              <Field
+                label="Contingency"
+                suffix="%"
+                value={state.contingency}
+                onChange={(value) => updateField("contingency", value)}
+              />
+            </div>
 
-        <div className="mt-6 grid gap-px overflow-hidden border border-white/22 bg-white/16">
-          <Metric label="Grey structure" value={formatCurrency(structureCost)} />
-          <Metric label="Finishing" value={formatCurrency(finishingCost)} />
-          <Metric label="Contingency" value={formatCurrency(contingencyCost)} />
-          <Metric label="Subtotal" value={formatCurrency(subtotal)} />
-        </div>
+            <p className="mt-6 text-sm leading-7 text-muted">
+              Keep the homepage version short and useful. When a visitor needs a fast planning read, this is enough to frame the conversation before the full estimate.
+            </p>
+          </div>
 
-        <div className="mt-6 border border-white/28 bg-white/22 p-5">
-          <p className={`${monoClass} text-white/86`}>Planning note</p>
-          <p className="mt-3 text-sm leading-7 text-white/92">
-            Pair this estimate with the live board rates before you move into a buy, hold, or sell decision. Budget pressure changes the meaning of the same quoted market price.
-          </p>
+          <div className="bg-brand-gradient px-6 py-6 text-white sm:px-8 sm:py-8">
+            <p className="mono-label text-white/84">Estimated total</p>
+            <p className="mt-4 font-display text-[clamp(2.6rem,5vw,4.6rem)] font-semibold leading-none tracking-[-0.065em] text-white">
+              {formatCurrency(totalCost)}
+            </p>
+            <p className="mt-3 text-sm leading-7 text-white/88">{formatLac(totalCost)}</p>
+
+            <div className="mt-8 grid gap-px overflow-hidden border border-white/20 bg-white/16">
+              <Metric label="Grey structure" value={formatCurrency(structureCost)} />
+              <Metric label="Finishing" value={formatCurrency(finishingCost)} />
+              <Metric label="Contingency" value={formatCurrency(contingencyCost)} />
+              <Metric label="Subtotal" value={formatCurrency(subtotal)} />
+            </div>
+
+            <div className="mt-6 border border-white/20 bg-white/12 px-4 py-4">
+              <p className="mono-label text-white/84">Planning note</p>
+              <p className="mt-3 text-sm leading-7 text-white/88">
+                Use this as a practical estimate, not a contractor quote. The goal is to read the build cost alongside the live board before the next decision.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function BenefitCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="border border-line bg-panel-strong px-4 py-4">
+      <p className="mono-label text-accent">{title}</p>
+      <p className="mt-3 text-sm leading-7 text-muted">{body}</p>
     </div>
   );
 }
@@ -134,9 +170,7 @@ function Field({
 }) {
   return (
     <label className="space-y-2 text-sm text-foreground/80">
-      <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
-        {label}
-      </span>
+      <span className="input-label">{label}</span>
       <div className="border border-line bg-panel-strong px-4 py-3">
         <div className="flex items-center gap-3">
           <input
@@ -157,8 +191,8 @@ function Field({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white/14 px-4 py-4">
-      <p className={`${monoClass} text-white/86`}>{label}</p>
+    <div className="bg-white/10 px-4 py-4">
+      <p className="mono-label text-white/82">{label}</p>
       <p className="mt-3 text-sm font-semibold text-white">{value}</p>
     </div>
   );

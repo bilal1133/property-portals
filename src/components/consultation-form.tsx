@@ -62,7 +62,7 @@ export function ConsultationForm({
     <form className="space-y-5" onSubmit={handleSubmit} noValidate>
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="space-y-2 text-sm text-foreground/80">
-          <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
+          <span className="input-label">
             Your Name · Optional
           </span>
           <input
@@ -75,7 +75,7 @@ export function ConsultationForm({
         </label>
 
         <label className="space-y-2 text-sm text-foreground/80">
-          <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
+          <span className="input-label">
             WhatsApp Number · Optional
           </span>
           <input
@@ -91,7 +91,7 @@ export function ConsultationForm({
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="space-y-2 text-sm text-foreground/80">
-          <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
+          <span className="input-label">
             I want to
           </span>
           <select
@@ -110,7 +110,7 @@ export function ConsultationForm({
         </label>
 
         <label className="space-y-2 text-sm text-foreground/80">
-          <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
+          <span className="input-label">
             Product or Collection
           </span>
           <select
@@ -130,7 +130,7 @@ export function ConsultationForm({
       </div>
 
       <label className="space-y-2 text-sm text-foreground/80">
-        <span className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">
+        <span className="input-label">
           Message · Optional
         </span>
         <textarea

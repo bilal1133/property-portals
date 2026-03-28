@@ -16,8 +16,7 @@ import {
   TrustAndGuidanceSection,
   getCollectionRateLabel,
 } from "@/components/market-ui";
-import { Phase10KnowledgeBaseSection } from "@/components/phase10-knowledge-base";
-import { siteMeta } from "@/data/landing-content";
+import { defaultSocialImagePath, siteMeta, siteOrigin } from "@/data/landing-content";
 import {
   getCollectionPageData,
   getCollectionSlugs,
@@ -30,7 +29,7 @@ type CollectionPageProps = {
   }>;
 };
 
-const siteUrl = "https://property-portals.com";
+const siteUrl = siteOrigin;
 
 function generateBreadcrumbSchema(slug: string, collectionName: string) {
   return {
@@ -46,12 +45,6 @@ function generateBreadcrumbSchema(slug: string, collectionName: string) {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Collections",
-        item: `${siteUrl}/#collections`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
         name: collectionName,
         item: `${siteUrl}/collections/${slug}`,
       },
@@ -59,7 +52,6 @@ function generateBreadcrumbSchema(slug: string, collectionName: string) {
   };
 }
 
-const shellClass = "mx-auto w-full max-w-[1600px] px-5 sm:px-8 xl:px-[52px]";
 export const revalidate = 300;
 
 export async function generateStaticParams() {
@@ -76,16 +68,36 @@ export async function generateMetadata({
 
   if (!pageData) {
     return {
-      title: `${siteMeta.brandName} | Collection Board`,
+      title: "Collection Board",
       description: siteMeta.heroDescription,
     };
   }
 
   const rateLabel = getCollectionRateLabel(pageData.allProducts);
+  const title = `${pageData.collection.name} ${rateLabel}`;
+  const description = `Live ${pageData.collection.name} ${rateLabel}, movers, archive rows, and direct WhatsApp consultation.`;
+  const canonicalPath = `/collections/${slug}`;
 
   return {
-    title: `${pageData.collection.name} ${rateLabel} | ${siteMeta.brandName}`,
-    description: `Live ${pageData.collection.name} ${rateLabel}, movers, archive rows, and direct WhatsApp consultation.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      type: "website",
+      siteName: siteMeta.brandName,
+      url: canonicalPath,
+      title,
+      description,
+      images: [defaultSocialImagePath],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [defaultSocialImagePath],
+    },
   };
 }
 
@@ -117,9 +129,6 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     { label: "Pulse", href: "#pulse" },
     { label: "Archive", href: "#archive" },
     { label: "Guidance", href: "#guidance" },
-    ...(pageData.collection.slug === "phase-10"
-      ? [{ label: "Knowledge", href: "#knowledge" }]
-      : []),
     { label: "Contact", href: "#contact" },
   ];
   const headerTickerItems = buildHeaderTickerItems(homepageData.sections);
@@ -131,105 +140,105 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
-            generateBreadcrumbSchema(slug, pageData.collection.name)
+            generateBreadcrumbSchema(slug, pageData.collection.name),
           ),
         }}
       />
       <main id="top" className="overflow-x-clip">
-      <SiteHeader
-        pageLinks={pageLinks}
-        collectionLinks={homepageData.collectionLinks.slice(0, 8)}
-        currentCollectionSlug={pageData.collection.slug}
-        tickerItems={headerTickerItems}
-      />
+        <SiteHeader
+          pageLinks={pageLinks}
+          collectionLinks={homepageData.collectionLinks.slice(0, 8)}
+          currentCollectionSlug={pageData.collection.slug}
+          tickerItems={headerTickerItems}
+        />
 
-      <CollectionShowcaseHero
-        collection={pageData.collection}
-        state={pageData.state}
-        rateLabel={collectionRateLabel}
-        heroRate={heroRate}
-      />
-
-      <section id="rates" className="section-paper py-8 lg:py-12">
-        <div className={shellClass}>
-          <CollectionTodayRatesShowcase collection={pageData.collection} state={pageData.state} />
-        </div>
-      </section>
-
-      <section className="section-mist py-16 lg:py-24">
-        <div className={shellClass}>
-          <SectionHeading
-            eyebrow="Board Breakdown"
-            title={`Detailed ${pageData.collection.name} ${collectionRateLabel}`}
-            description="Use the detailed board when you want more than the hero summary and need every live product grouped clearly before making a decision."
-          />
-
-          <div className="mt-8">
-            <CollectionRatesBoard collection={pageData.collection} state={pageData.state} />
-          </div>
-        </div>
-      </section>
-
-      <section id="pulse" className="section-signal py-16 lg:py-20">
-        <div className={shellClass}>
-          <MarketPulseSection
-            products={pageData.pulseProducts}
+        <>
+          <CollectionShowcaseHero
+            collection={pageData.collection}
             state={pageData.state}
-            showCollectionColumn={false}
-          />
-        </div>
-      </section>
-
-      <section id="archive" className="section-cloud py-16 lg:py-24">
-        <div className={shellClass}>
-          <SectionHeading
-            eyebrow="Rate History"
-            title={`Archive rows for ${pageData.collection.name}`}
-            description="Use the archive to see whether pricing is building, flat, or noisy over time before you ask for help on timing."
+            rateLabel={collectionRateLabel}
+            heroRate={heroRate}
           />
 
-          <div className="mt-8">
-            <ArchiveTable
-              products={pageData.allProducts}
-              rows={pageData.archiveRows}
-              collectionName={pageData.collection.name}
-            />
-          </div>
-        </div>
-      </section>
+          <section id="rates" className="section-paper py-8 lg:py-12">
+            <div className="shell">
+              <CollectionTodayRatesShowcase
+                collection={pageData.collection}
+                state={pageData.state}
+              />
+            </div>
+          </section>
 
-      <section id="guidance" className="section-mist py-16 lg:py-24">
-        <div className={shellClass}>
-          <TrustAndGuidanceSection
-            trustTitle={`Visitors still need proof before they act on ${pageData.collection.name}.`}
-            trustDescription="Live data helps, but the conversion still depends on clear credibility signals, recent examples, and a visible route to human guidance once the visitor wants more than one number."
-            guidanceTitle="What this board can answer quickly."
-            guidanceDescription="Use the board to get the first read fast, then move to WhatsApp when you need help with buying, selling, comparison, or timing."
-          />
-        </div>
-      </section>
+          <section className="section-mist py-16 lg:py-24">
+            <div className="shell">
+              <SectionHeading
+                eyebrow="Board Breakdown"
+                title={`Detailed ${pageData.collection.name} ${collectionRateLabel}`}
+                description="Use the detailed board when you want more than the hero summary and need every live product grouped clearly before making a decision."
+              />
 
-      <section id="contact" className="section-cloud py-16 lg:py-24">
-        <div className={shellClass}>
-          <ConsultationSection
-            title={`Need a read on ${pageData.collection.name} before you move?`}
-            description="Share the collection, the product type, and whether you are buying, selling, or comparing. The form only prepares a WhatsApp message so the conversation starts with context."
-            fileTypes={collectionOptions}
-            quickMessage={`Hello, I need guidance on ${pageData.collection.name} and the latest published rates.`}
-          />
-        </div>
-      </section>
+              <div className="mt-8">
+                <CollectionRatesBoard
+                  collection={pageData.collection}
+                  state={pageData.state}
+                />
+              </div>
+            </div>
+          </section>
 
-      {pageData.collection.slug === "phase-10" ? (
-        <section className="section-paper py-16 lg:py-24">
-          <div className={shellClass}>
-            <Phase10KnowledgeBaseSection />
-          </div>
-        </section>
-      ) : null}
+          <section id="pulse" className="section-signal py-16 lg:py-20">
+            <div className="shell">
+              <MarketPulseSection
+                products={pageData.pulseProducts}
+                state={pageData.state}
+                showCollectionColumn={false}
+              />
+            </div>
+          </section>
 
-      <SiteFooter pageLinks={pageLinks} />
-    </main>
+          <section id="archive" className="section-cloud py-16 lg:py-24">
+            <div className="shell">
+              <SectionHeading
+                eyebrow="Rate History"
+                title={`Archive rows for ${pageData.collection.name}`}
+                description="Use the archive to see whether pricing is building, flat, or noisy over time before you ask for help on timing."
+              />
+
+              <div className="mt-8">
+                <ArchiveTable
+                  products={pageData.allProducts}
+                  rows={pageData.archiveRows}
+                  collectionName={pageData.collection.name}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section id="guidance" className="section-mist py-16 lg:py-24">
+            <div className="shell">
+              <TrustAndGuidanceSection
+                trustTitle={`Visitors still need proof before they act on ${pageData.collection.name}.`}
+                trustDescription="Live data helps, but the conversion still depends on clear credibility signals, recent examples, and a visible route to human guidance once the visitor wants more than one number."
+                guidanceTitle="What this board can answer quickly."
+                guidanceDescription="Use the board to get the first read fast, then move to WhatsApp when you need help with buying, selling, comparison, or timing."
+              />
+            </div>
+          </section>
+
+          <section id="contact" className="section-cloud py-16 lg:py-24">
+            <div className="shell">
+              <ConsultationSection
+                title={`Need a read on ${pageData.collection.name} before you move?`}
+                description="Share the collection, the product type, and whether you are buying, selling, or comparing. The form only prepares a WhatsApp message so the conversation starts with context."
+                fileTypes={collectionOptions}
+                quickMessage={`Hello, I need guidance on ${pageData.collection.name} and the latest published rates.`}
+              />
+            </div>
+          </section>
+        </>
+
+        <SiteFooter pageLinks={pageLinks} />
+      </main>
     </>
   );
 }

@@ -50,27 +50,12 @@ const typeLabels = {
   home: "Homes",
 } as const;
 
-const shellClass = "mx-auto w-full max-w-[1600px] px-5 sm:px-8 xl:px-[52px]";
-const surfaceClass = "motion-panel surface-elevation border border-line bg-white";
-const softSurfaceClass = "motion-panel surface-elevation border border-line bg-panel-strong";
-const brandSurfaceClass =
-  "theme-inverse motion-panel brand-elevation border border-white/20 bg-brand-gradient text-white";
-const darkSurfaceClass = "theme-inverse border border-white/10 bg-navy text-white";
-const monoClass = "font-mono text-[0.72rem] uppercase tracking-[0.18em]";
-const utilityMonoClass = "font-mono text-[0.64rem] uppercase tracking-[0.16em]";
-const primaryButtonClass =
-  "pressable sheen inline-flex min-h-13 items-center justify-center gap-3 border border-accent bg-brand-gradient px-7 py-4 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(7,85,233,0.22)] hover:border-brand-deep hover:shadow-[0_22px_44px_rgba(7,85,233,0.26)]";
-const secondaryButtonClass =
-  "pressable sheen inline-flex min-h-13 items-center justify-center gap-3 border border-accent/20 bg-accent-soft px-7 py-4 text-sm font-semibold text-brand-deep hover:border-accent hover:bg-white hover:text-accent";
-const lightButtonClass =
-  "pressable sheen inline-flex min-h-13 items-center justify-center gap-3 border border-white bg-white px-7 py-4 text-sm font-semibold text-foreground shadow-[0_12px_28px_rgba(2,8,22,0.12)] hover:text-accent";
-const chipClass =
-  "inline-flex min-h-9 items-center gap-2 rounded-[20px] border border-line bg-white px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted transition hover:border-accent hover:text-accent";
+// Use global utility classes from globals.css (shell, mono-label, mono-label-sm, surface-card, surface-card-strong, surface-brand, surface-navy)
 
 function BrandMark({ size = 48 }: { size?: number }) {
   return (
     <Image
-      src="/brand/property-portals-mark.svg"
+      src="/brand/property-portals-logo-mark.svg"
       alt="Property Portals mark"
       width={size}
       height={size}
@@ -94,7 +79,9 @@ function BrandLockup({
     <div className={`flex items-center ${dense ? "gap-3" : "gap-4"}`}>
       <div
         className={`motion-lift ${dense ? "p-1.5" : "p-2.5"} ${
-          inverse ? "border border-white/18 bg-white/12" : "border border-line bg-white"
+          inverse
+            ? "border border-white/18 bg-white/12"
+            : "border border-line bg-white"
         }`}
       >
         <BrandMark size={dense ? 22 : compact ? 34 : 44} />
@@ -108,7 +95,7 @@ function BrandLockup({
           {siteMeta.brandName}
         </p>
         <p
-          className={`${dense ? "font-mono text-[0.58rem] uppercase tracking-[0.16em]" : monoClass} ${dense ? "mt-0.5" : "mt-1"} ${
+          className={`${dense ? "font-mono text-mono-xxxs uppercase tracking-mono" : "mono-label"} ${dense ? "mt-0.5" : "mt-1"} ${
             inverse ? "text-white/82" : "text-muted"
           }`}
         >
@@ -131,15 +118,16 @@ export function SiteHeader({
   tickerItems: HeaderTickerItem[];
 }) {
   const activeCollectionLabel = collectionLinks.find(
-    (collection) => collection.slug === currentCollectionSlug
+    (collection) => collection.slug === currentCollectionSlug,
   )?.label;
-  const marqueeItems = tickerItems.length > 0 ? [...tickerItems, ...tickerItems] : [];
+  const marqueeItems =
+    tickerItems.length > 0 ? [...tickerItems, ...tickerItems] : [];
 
   return (
     <CollapsingHeader
       topBar={
         <div className="border-b border-white/12 bg-brand-gradient text-white">
-          <div className={`${shellClass} flex items-center justify-between gap-4 py-3`}>
+          <div className="shell flex items-center justify-between gap-4 py-3">
             <div className="min-w-0 flex items-center gap-4">
               <Link className="group shrink-0" href="/">
                 <BrandLockup
@@ -147,7 +135,9 @@ export function SiteHeader({
                   inverse
                   dense
                   caption={
-                    currentCollectionSlug ? "Dedicated collection board" : "Collection market hub"
+                    currentCollectionSlug
+                      ? "Dedicated collection board"
+                      : "Collection market hub"
                   }
                 />
               </Link>
@@ -157,7 +147,7 @@ export function SiteHeader({
                   {pageLinks.map((link) => (
                     <a
                       key={link.href}
-                      className="pressable inline-flex min-h-8 items-center rounded-[999px] border border-transparent px-3 py-1.5 text-[0.9rem] font-medium text-white/88 hover:border-white/20 hover:bg-white/12 hover:text-white"
+                      className="badge-pill badge-pill-light"
                       href={link.href}
                     >
                       {link.label}
@@ -169,8 +159,12 @@ export function SiteHeader({
 
             <div className="flex shrink-0 items-center gap-2">
               <div className="hidden items-center gap-2 text-xs text-white/80 xl:flex">
-                <span className={utilityMonoClass}>Live market data</span>
-                <span>{activeCollectionLabel ? `${activeCollectionLabel} board` : "All collections"}</span>
+                <span className="mono-label-sm">Live market data</span>
+                <span>
+                  {activeCollectionLabel
+                    ? `${activeCollectionLabel} board`
+                    : "All collections"}
+                </span>
               </div>
               <div className="hidden sm:block">
                 <SocialLinks compact inverse />
@@ -179,7 +173,7 @@ export function SiteHeader({
                 className="pressable inline-flex min-h-10 items-center justify-center gap-2 rounded-[12px] border border-white/24 bg-white px-5 py-2.5 text-sm font-semibold text-accent shadow-[0_12px_24px_rgba(255,255,255,0.16)] hover:border-white hover:text-brand-deep hover:shadow-[0_18px_32px_rgba(255,255,255,0.22)]"
                 href={buildWhatsAppUrl(
                   siteMeta.phoneE164,
-                  "Hello, I want direct guidance on a live property collection."
+                  "Hello, I want direct guidance on a live property collection.",
                 )}
                 target="_blank"
                 rel="noreferrer"
@@ -190,13 +184,13 @@ export function SiteHeader({
             </div>
           </div>
 
-          <div className={`${shellClass} pb-3 md:hidden`}>
+          <div className="shell pb-3 md:hidden">
             <div className="overflow-x-auto">
               <nav className="flex min-w-max items-center gap-1">
                 {pageLinks.map((link) => (
                   <a
                     key={link.href}
-                    className="pressable inline-flex min-h-8 items-center rounded-[999px] border border-white/18 px-3 py-1.5 text-[0.82rem] font-medium text-white/88 hover:bg-white/12 hover:text-white"
+                    className="nav-pill nav-pill-outline-sm"
                     href={link.href}
                   >
                     {link.label}
@@ -210,13 +204,19 @@ export function SiteHeader({
       lowerBars={
         <>
           <div className="border-b border-line bg-white/96 text-foreground">
-            <div className={`${shellClass} flex flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between`}>
+            <div className="shell flex flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="hidden flex-wrap items-center gap-3 text-sm text-muted lg:flex">
-                <span className={`${utilityMonoClass} text-accent`}>{siteMeta.agencyName}</span>
+                <span className="mono-label-sm text-accent">
+                  {siteMeta.agencyName}
+                </span>
                 <span className="hidden h-3.5 w-px bg-line sm:block" />
-                <span className="max-w-[34rem] text-muted">{siteMeta.address}</span>
+                <span className="max-w-[34rem] text-muted">
+                  {siteMeta.address}
+                </span>
                 <span className="hidden h-3.5 w-px bg-line lg:block" />
-                <span className="text-muted">Verified boards · Market-guidance desk</span>
+                <span className="text-muted">
+                  Verified boards · Market-guidance desk
+                </span>
               </div>
 
               <div className="overflow-x-auto lg:max-w-[48%]">
@@ -230,7 +230,7 @@ export function SiteHeader({
                         className={`pressable min-h-10 rounded-[10px] px-3.5 py-2 text-sm ${
                           isActive
                             ? "border border-accent bg-accent text-white"
-                            : "border border-line bg-panel-strong text-muted hover:border-accent hover:bg-white hover:text-accent"
+                            : "border border-line bg-panel-strong hover:border-accent hover:bg-white hover:text-accent"
                         }`}
                         href={`/collections/${collection.slug}`}
                       >
@@ -245,8 +245,8 @@ export function SiteHeader({
 
           {tickerItems.length > 0 ? (
             <div className="hidden border-b border-line bg-panel-strong/96 md:block">
-              <div className={`${shellClass} flex items-center gap-4 overflow-hidden py-3`}>
-                <p className={`${monoClass} shrink-0 text-accent`}>Live rates</p>
+              <div className="shell flex items-center gap-4 overflow-hidden py-3">
+                <p className={`mono-label shrink-0 text-accent`}>Live rates</p>
                 <div className="header-marquee min-w-0 flex-1">
                   <div className="header-marquee-inner">
                     {marqueeItems.map((item, index) => (
@@ -258,8 +258,13 @@ export function SiteHeader({
                         <span className="font-medium text-muted group-hover:text-foreground">
                           {item.label}
                         </span>
-                        <span className="font-semibold text-foreground">{formatPriceLac(item.price)}</span>
-                        <TickerDelta direction={item.direction} delta={item.delta} />
+                        <span className="font-semibold text-foreground">
+                          {formatPriceLac(item.price)}
+                        </span>
+                        <TickerDelta
+                          direction={item.direction}
+                          delta={item.delta}
+                        />
                         <span className="text-line">|</span>
                       </a>
                     ))}
@@ -274,7 +279,9 @@ export function SiteHeader({
   );
 }
 
-export function buildHeaderTickerItems(sections: MappedCollectionSection[]): HeaderTickerItem[] {
+export function buildHeaderTickerItems(
+  sections: MappedCollectionSection[],
+): HeaderTickerItem[] {
   return sections
     .flatMap((section) =>
       section.groups.flatMap((group) =>
@@ -287,8 +294,8 @@ export function buildHeaderTickerItems(sections: MappedCollectionSection[]): Hea
             price: product.currentPrice ?? 0,
             delta: product.delta,
             direction: product.direction,
-          }))
-      )
+          })),
+      ),
     )
     .slice(0, 18);
 }
@@ -306,7 +313,9 @@ export function SectionHeading({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className={`${monoClass} ${inverse ? "text-white/86" : "text-accent"}`}>{eyebrow}</p>
+      <p className={`mono-label ${inverse ? "text-white/86" : "text-accent"}`}>
+        {eyebrow}
+      </p>
       <h2
         className={`mt-4 font-display text-[clamp(2.9rem,5vw,5.8rem)] font-semibold leading-[0.92] tracking-[-0.055em] ${
           inverse ? "text-white" : "text-foreground"
@@ -314,7 +323,9 @@ export function SectionHeading({
       >
         {title}
       </h2>
-      <p className={`mt-6 max-w-3xl text-lg leading-9 ${inverse ? "text-white/90" : "text-muted"}`}>
+      <p
+        className={`mt-6 max-w-3xl text-lg leading-9 ${inverse ? "text-white/90" : "text-muted"}`}
+      >
         {description}
       </p>
     </div>
@@ -324,7 +335,7 @@ export function SectionHeading({
 export function MetricCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border border-line bg-white px-4 py-3">
-      <p className={`${monoClass} leading-none text-muted`}>{label}</p>
+      <p className={`mono-label leading-none text-muted`}>{label}</p>
       <p className="font-display text-[1.7rem] font-semibold tracking-[-0.04em] text-foreground">
         {value}
       </p>
@@ -360,16 +371,18 @@ function CollectionVisualPreview({
         priority={priority}
         sizes={sizes}
         className="object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
-        style={visual.objectPosition ? { objectPosition: visual.objectPosition } : undefined}
+        style={
+          visual.objectPosition
+            ? { objectPosition: visual.objectPosition }
+            : undefined
+        }
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,8,22,0.18)_0%,rgba(2,8,22,0.34)_32%,rgba(2,8,22,0.94)_100%)]" />
 
       <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 sm:p-5">
-        <span className="border border-white/20 bg-[rgba(3,28,75,0.62)] px-3 py-2 font-mono text-[0.64rem] uppercase tracking-[0.16em] text-white/94 backdrop-blur-sm">
-          {visual.kicker}
-        </span>
+        <span className="brand-badge">{visual.kicker}</span>
         <a
-          className="pressable inline-flex min-h-10 items-center gap-2 border border-white/24 bg-[rgba(3,28,75,0.58)] px-3 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm hover:bg-[rgba(3,28,75,0.72)]"
+          className="brand-button"
           href={visual.sourceHref}
           target="_blank"
           rel="noreferrer"
@@ -380,10 +393,14 @@ function CollectionVisualPreview({
       </div>
 
       <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-        <p className={`${monoClass} text-white/86`}>{visual.location}</p>
+        <p className={`mono-label text-white/86`}>{visual.location}</p>
         <p className="mt-2 text-lg font-semibold text-white">{name}</p>
-        <p className="mt-2 text-sm leading-6 text-white/92">{visual.spotlight}</p>
-        <p className={`${utilityMonoClass} mt-3 text-white/88`}>Source · {visual.sourceLabel}</p>
+        <p className="mt-2 text-sm leading-6 text-white/92">
+          {visual.spotlight}
+        </p>
+        <p className="mono-label-sm mt-3 text-white/88">
+          Source · {visual.sourceLabel}
+        </p>
       </div>
     </div>
   );
@@ -419,7 +436,7 @@ export function CollectionHeroMediaPanel({
       )}
 
       <div className="relative p-6">
-        <p className={`${monoClass} text-white/84`}>Board snapshot</p>
+        <p className={`mono-label text-white/84`}>Board snapshot</p>
         <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
           {collection.name}
         </h2>
@@ -432,12 +449,19 @@ export function CollectionHeroMediaPanel({
         </p>
 
         <div className="mt-6 grid gap-px overflow-hidden border border-white/28 bg-white/28 sm:grid-cols-3">
-          <MetricTile label="Live price" value={heroRate ? formatPriceLac(heroRate) : "Pending"} />
+          <MetricTile
+            label="Live price"
+            value={heroRate ? formatPriceLac(heroRate) : "Pending"}
+          />
           <MetricTile label="Rate family" value={rateLabel} />
           <MetricTile
             label="Board state"
             value={
-              state === "ready" ? "Live" : state === "empty" ? "Waiting" : "Unavailable"
+              state === "ready"
+                ? "Live"
+                : state === "empty"
+                  ? "Waiting"
+                  : "Unavailable"
             }
           />
         </div>
@@ -479,7 +503,7 @@ export function CollectionShowcaseHero({
 
   return (
     <section className="section-paper">
-      <div className={`${shellClass} pb-16 pt-8 lg:pb-28 lg:pt-10`}>
+      <div className="shell pb-16 pt-8 lg:pb-28 lg:pt-10">
         <div className="theme-inverse animate-rise surface-elevation-strong bg-brand-gradient relative overflow-hidden border border-white/16 px-6 py-12 text-white sm:px-10 lg:px-14 lg:py-18">
           {visual ? (
             <>
@@ -490,7 +514,11 @@ export function CollectionShowcaseHero({
                 priority
                 sizes="100vw"
                 className="object-cover"
-                style={visual.objectPosition ? { objectPosition: visual.objectPosition } : undefined}
+                style={
+                  visual.objectPosition
+                    ? { objectPosition: visual.objectPosition }
+                    : undefined
+                }
               />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,28,75,0.9)_0%,rgba(3,28,75,0.82)_24%,rgba(3,28,75,0.96)_100%)]" />
             </>
@@ -512,15 +540,15 @@ export function CollectionShowcaseHero({
               <span className="text-white">{collection.name}</span>
             </div>
 
-            <div className="mt-8 inline-flex min-h-11 items-center gap-3 rounded-[999px] border border-white/32 bg-white/14 px-5 py-2 text-white shadow-[0_8px_22px_rgba(2,8,22,0.22)] backdrop-blur-md">
+            <div className="mt-8 glass-card">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#88e592]" />
-              <span className={`${monoClass} text-white/92`}>Live collection data · Updated daily</span>
+              <span className={`mono-label text-white/92`}>
+                Live collection data · Updated daily
+              </span>
             </div>
 
             <div className="mt-10 space-y-5">
-              <p className="font-mono text-[0.76rem] uppercase tracking-[0.2em] text-[#e7f0ff]">
-                {trustHeading}
-              </p>
+              <p className="mono-label text-white/94">{trustHeading}</p>
               <h1 className="font-display text-[clamp(3.3rem,8vw,6.8rem)] font-semibold leading-[0.9] tracking-[-0.065em] text-white [text-shadow:0_10px_32px_rgba(2,8,22,0.36)]">
                 {collection.name}
               </h1>
@@ -534,22 +562,23 @@ export function CollectionShowcaseHero({
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              {["Live board data", "Visible movement badges", "Direct WhatsApp handoff"].map((item) => (
-                <span
-                  key={item}
-                  className="inline-flex min-h-10 items-center rounded-[999px] border border-white/26 bg-white/12 px-4 py-2 text-sm font-medium text-white/94 backdrop-blur-sm"
-                >
+              {[
+                "Live board data",
+                "Visible movement badges",
+                "Direct WhatsApp handoff",
+              ].map((item) => (
+                <span key={item} className="badge-pill badge-pill-outline">
                   {item}
                 </span>
               ))}
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-8 flex w-full max-w-4xl flex-wrap items-center justify-center gap-4">
               <a
-                className={lightButtonClass}
+                className="btn-light w-full sm:w-auto"
                 href={buildWhatsAppUrl(
                   siteMeta.phoneE164,
-                  `Hello, I want guidance on ${collection.name}.`
+                  `Hello, I want guidance on ${collection.name}.`,
                 )}
                 target="_blank"
                 rel="noreferrer"
@@ -558,14 +587,14 @@ export function CollectionShowcaseHero({
                 <ArrowUpRightIcon />
               </a>
               <a
-                className="pressable inline-flex min-h-13 items-center justify-center gap-3 rounded-[14px] border border-white/28 bg-white/14 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white hover:bg-white/20"
+                className="pressable inline-flex min-h-13 w-full items-center justify-center gap-3 rounded-[14px] border border-white/28 bg-white/14 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white hover:bg-white/20 sm:w-auto"
                 href="#rates"
               >
                 Jump to live rates
                 <ArrowUpRightIcon />
               </a>
               <Link
-                className="pressable inline-flex min-h-13 items-center justify-center gap-3 rounded-[14px] border border-white/28 bg-white/14 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white hover:bg-white/20"
+                className="pressable inline-flex min-h-13 w-full items-center justify-center gap-3 rounded-[14px] border border-white/28 bg-white/14 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white hover:bg-white/20 sm:w-auto"
                 href="/#collections"
               >
                 Compare collections
@@ -579,10 +608,12 @@ export function CollectionShowcaseHero({
                   key={action}
                   className="border border-white/24 bg-white/14 px-4 py-4 text-left backdrop-blur-sm"
                 >
-                  <p className={`${monoClass} text-white/86`}>
+                  <p className={`mono-label text-white/86`}>
                     {visual ? "Collection highlight" : "Use this board to"}
                   </p>
-                  <p className="mt-3 text-sm font-semibold leading-7 text-white">{action}</p>
+                  <p className="mt-3 text-sm font-semibold leading-7 text-white">
+                    {action}
+                  </p>
                 </div>
               ))}
             </div>
@@ -590,14 +621,26 @@ export function CollectionShowcaseHero({
             <div className="mt-12 grid w-full max-w-4xl gap-px overflow-hidden rounded-[24px] border border-white/28 bg-white/18 sm:grid-cols-2 xl:grid-cols-4">
               <HeroTrustMetric
                 label="Board status"
-                value={state === "ready" ? "Live" : state === "empty" ? "Ready" : "Syncing"}
+                value={
+                  state === "ready"
+                    ? "Live"
+                    : state === "empty"
+                      ? "Ready"
+                      : "Syncing"
+                }
               />
-              <HeroTrustMetric label="Products" value={String(collection.productCount)} />
+              <HeroTrustMetric
+                label="Products"
+                value={String(collection.productCount)}
+              />
               <HeroTrustMetric
                 label="Latest rate"
                 value={heroRate !== null ? formatPriceLac(heroRate) : "Pending"}
               />
-              <HeroTrustMetric label="Last updated" value={collection.latestUpdateLabel} />
+              <HeroTrustMetric
+                label="Last updated"
+                value={collection.latestUpdateLabel}
+              />
             </div>
           </div>
         </div>
@@ -617,13 +660,14 @@ export function FeaturedCollectionBoard({
 }) {
   if (!collection) {
     return (
-      <aside className={`${brandSurfaceClass} overflow-hidden p-6`}>
-        <p className={`${monoClass} text-white/84`}>Collection board</p>
+      <aside className="surface-brand motion-panel overflow-hidden p-6">
+        <p className={`mono-label text-white/84`}>Collection board</p>
         <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
           Awaiting live collection data
         </h2>
         <p className="mt-3 text-sm leading-7 text-white/88">
-          The homepage stays live even when Strapi does not return any collection data yet.
+          The homepage stays live even when Strapi does not return any
+          collection data yet.
         </p>
       </aside>
     );
@@ -632,7 +676,7 @@ export function FeaturedCollectionBoard({
   const visual = getCollectionVisual(collection.slug);
 
   return (
-    <aside className={`${brandSurfaceClass} relative overflow-hidden`}>
+    <aside className="surface-brand motion-panel relative overflow-hidden">
       {visual ? (
         <div className="border-b border-white/16">
           <CollectionVisualPreview
@@ -650,21 +694,30 @@ export function FeaturedCollectionBoard({
       <div className="relative space-y-6 p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className={`${monoClass} text-white/84`}>Featured board</p>
+            <p className={`mono-label text-white/84`}>Featured board</p>
             <h2 className="mt-2 font-display text-[2.5rem] font-semibold leading-[0.98] tracking-[-0.05em] text-white">
               {collection.name}
             </h2>
           </div>
-          <span className="border border-white/24 bg-white/16 px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white/92">
+          <span className="border border-white/24 bg-white/16 px-3 py-2 font-mono text-[0.65rem] uppercase tracking-loosest text-white/92">
             {collection.latestUpdateLabel}
           </span>
         </div>
 
         <div className="grid gap-px overflow-hidden border border-white/22 bg-white/30 md:grid-cols-3">
-          <MetricTile label="Products" value={String(collection.productCount)} />
+          <MetricTile
+            label="Products"
+            value={String(collection.productCount)}
+          />
           <MetricTile
             label="Status"
-            value={state === "ready" ? "Live" : state === "empty" ? "Waiting" : "Offline"}
+            value={
+              state === "ready"
+                ? "Live"
+                : state === "empty"
+                  ? "Waiting"
+                  : "Offline"
+            }
           />
           <MetricTile label="Last sync" value={lastUpdatedLabel} />
         </div>
@@ -677,15 +730,24 @@ export function FeaturedCollectionBoard({
                 className="motion-lift sheen grid gap-3 border border-white/28 bg-white/22 px-4 py-4 md:grid-cols-[minmax(0,1fr)_auto]"
               >
                 <div>
-                  <p className={`${monoClass} text-white/84`}>{getTypeLabel(product.type)}</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{product.name}</p>
+                  <p className={`mono-label text-white/84`}>
+                    {getTypeLabel(product.type)}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-white">
+                    {product.name}
+                  </p>
                 </div>
                 <div className="text-left md:text-right">
                   <p className="font-display text-[2rem] font-semibold tracking-[-0.05em] text-white">
                     {formatPriceLac(product.currentPrice)}
                   </p>
                   <div className="mt-2 md:justify-end">
-                    <MovementBadge direction={product.direction} delta={product.delta} compact inverse />
+                    <MovementBadge
+                      direction={product.direction}
+                      delta={product.delta}
+                      compact
+                      inverse
+                    />
                   </div>
                 </div>
               </div>
@@ -693,12 +755,13 @@ export function FeaturedCollectionBoard({
           </div>
         ) : (
           <p className="border border-dashed border-white/28 bg-white/12 px-4 py-5 text-sm leading-7 text-white/88">
-            This collection is published but does not have live products yet. Open the board anyway to keep the market on your watchlist.
+            This collection is published but does not have live products yet.
+            Open the board anyway to keep the market on your watchlist.
           </p>
         )}
 
         <div className="flex flex-wrap gap-3">
-          <Link className={lightButtonClass} href={`/collections/${collection.slug}`}>
+          <Link className="btn-light" href={`/collections/${collection.slug}`}>
             View live rates & history
             <ArrowUpRightIcon />
           </Link>
@@ -706,7 +769,7 @@ export function FeaturedCollectionBoard({
             className="pressable sheen inline-flex min-h-11 items-center justify-center gap-3 border border-white/24 bg-white/14 px-5 py-3 text-sm font-semibold text-white hover:bg-white/20"
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              `Hello, please guide me on the ${collection.name} collection.`
+              `Hello, please guide me on the ${collection.name} collection.`,
             )}
             target="_blank"
             rel="noreferrer"
@@ -723,7 +786,7 @@ export function FeaturedCollectionBoard({
 function HeroTrustMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-white/12 px-5 py-6 backdrop-blur-sm">
-      <p className={`${monoClass} text-white/82`}>{label}</p>
+      <p className={`mono-label text-white/82`}>{label}</p>
       <p className="mt-3 font-display text-[clamp(1.8rem,3.6vw,2.8rem)] font-semibold leading-none tracking-[-0.05em] text-white">
         {value}
       </p>
@@ -731,11 +794,15 @@ function HeroTrustMetric({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function CollectionHubCard({ collection }: { collection: MappedCollectionCard }) {
+export function CollectionHubCard({
+  collection,
+}: {
+  collection: MappedCollectionCard;
+}) {
   const visual = getCollectionVisual(collection.slug);
 
   return (
-    <article className={`${surfaceClass} surface-elevation-strong overflow-hidden`}>
+    <article className="surface-card motion-panel overflow-hidden">
       {visual ? (
         <div className="border-b border-line">
           <CollectionVisualPreview
@@ -750,11 +817,9 @@ export function CollectionHubCard({ collection }: { collection: MappedCollection
       <div className="border-b border-line px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className={`${monoClass} text-accent`}>Collection board</p>
-            <h3 className="mt-2 font-display text-[clamp(2.2rem,4vw,3.4rem)] font-semibold leading-[0.96] tracking-[-0.05em] text-foreground">
-              {collection.name}
-            </h3>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
+            <p className={`mono-label text-accent`}>Collection board</p>
+            <h3>{collection.name}</h3>
+            <p className="max-w-2xl">
               {collection.hasProducts
                 ? "Open this board for current rates, recent movement, archive history, and a fast WhatsApp handoff when you want help deciding."
                 : "The board is live and ready for watchlists, even while published products are still being added."}
@@ -762,8 +827,8 @@ export function CollectionHubCard({ collection }: { collection: MappedCollection
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <span className={chipClass}>{collection.productCount} products</span>
-            <span className={chipClass}>{collection.latestUpdateLabel}</span>
+            <span className="chip">{collection.productCount} products</span>
+            <span className="chip">{collection.latestUpdateLabel}</span>
           </div>
         </div>
       </div>
@@ -777,44 +842,59 @@ export function CollectionHubCard({ collection }: { collection: MappedCollection
                 className="motion-row grid gap-3 border-b border-line px-4 py-4 last:border-none md:grid-cols-[minmax(0,1fr)_auto_auto]"
               >
                 <div>
-                  <p className={`${monoClass} text-muted`}>{getTypeLabel(product.type)}</p>
-                  <p className="mt-2 text-sm font-semibold text-foreground">{product.name}</p>
+                  <p className={`mono-label text-muted`}>
+                    {getTypeLabel(product.type)}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    {product.name}
+                  </p>
                   <p className="mt-2 text-sm text-muted">
-                    {product.latestTime ? `Updated ${formatDate(product.latestTime)}` : "Awaiting date"}
+                    {product.latestTime
+                      ? `Updated ${formatDate(product.latestTime)}`
+                      : "Awaiting date"}
                   </p>
                 </div>
                 <p className="font-display text-[2.2rem] font-semibold leading-none tracking-[-0.05em] text-foreground md:text-right">
                   {formatPriceLac(product.currentPrice)}
                 </p>
                 <div className="md:self-center md:justify-self-end">
-                  <MovementBadge direction={product.direction} delta={product.delta} compact />
+                  <MovementBadge
+                    direction={product.direction}
+                    delta={product.delta}
+                    compact
+                  />
                 </div>
               </div>
             ))}
             {collection.featuredProducts.length > 2 ? (
               <div className="border-t border-line bg-white px-4 py-3">
-                <p className={`${monoClass} text-muted`}>
-                  +{collection.featuredProducts.length - 2} more products on the full board
+                <p className={`mono-label text-muted`}>
+                  +{collection.featuredProducts.length - 2} more products on the
+                  full board
                 </p>
               </div>
             ) : null}
           </div>
         ) : (
-          <div className="border border-dashed border-line bg-panel-strong px-5 py-6 text-sm leading-7 text-muted">
-            Rates coming soon. The dedicated collection page is ready, but there are no published products to render yet.
+          <div className="border border-dashed border-line bg-panel-strong px-5 py-6">
+            Rates coming soon. The dedicated collection page is ready, but there
+            are no published products to render yet.
           </div>
         )}
 
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link className={primaryButtonClass} href={`/collections/${collection.slug}`}>
+          <Link
+            className="btn-primary"
+            href={`/collections/${collection.slug}`}
+          >
             View live rates
             <ArrowUpRightIcon />
           </Link>
           <a
-            className={secondaryButtonClass}
+            className="btn-secondary"
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              `Hello, I want the current rates for ${collection.name}.`
+              `Hello, I want the current rates for ${collection.name}.`,
             )}
             target="_blank"
             rel="noreferrer"
@@ -833,7 +913,9 @@ export function SourceBackedCollectionsSection({
 }: {
   collections: MappedCollectionCard[];
 }) {
-  const visualCollections = collections.filter((collection) => getCollectionVisual(collection.slug));
+  const visualCollections = collections.filter((collection) =>
+    getCollectionVisual(collection.slug),
+  );
 
   if (visualCollections.length === 0) {
     return null;
@@ -860,8 +942,10 @@ export function SourceBackedCollectionsSection({
           return (
             <article
               key={collection.id}
-              className={`${surfaceClass} surface-elevation-strong overflow-hidden lg:grid lg:grid-cols-[minmax(320px,0.96fr)_minmax(0,1.04fr)] ${
-                reverseLayout ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""
+              className={`surface-card motion-panel surface-elevation-strong overflow-hidden lg:grid lg:grid-cols-[minmax(320px,0.96fr)_minmax(0,1.04fr)] ${
+                reverseLayout
+                  ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
+                  : ""
               }`}
             >
               <CollectionVisualPreview
@@ -874,9 +958,13 @@ export function SourceBackedCollectionsSection({
               <div className="flex flex-col justify-between gap-6 p-6 sm:p-8 lg:p-10">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`${monoClass} text-accent`}>Source-backed board</span>
-                    <span className={chipClass}>{collection.productCount} products</span>
-                    <span className={chipClass}>{collection.latestUpdateLabel}</span>
+                    <span className={`mono-label text-accent`}>
+                      Source-backed board
+                    </span>
+                    <span className="chip">
+                      {collection.productCount} products
+                    </span>
+                    <span className="chip">{collection.latestUpdateLabel}</span>
                   </div>
 
                   <h3 className="mt-4 font-display text-[clamp(2.4rem,4.2vw,4rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-foreground">
@@ -890,19 +978,23 @@ export function SourceBackedCollectionsSection({
 
                 <div className="grid gap-px overflow-hidden border border-line bg-line md:grid-cols-3">
                   <div className="bg-panel-strong px-4 py-4">
-                    <p className={`${monoClass} text-muted`}>Board status</p>
+                    <p className={`mono-label text-muted`}>Board status</p>
                     <p className="mt-3 font-display text-[1.75rem] font-semibold tracking-[-0.04em] text-foreground">
                       {collection.hasProducts ? "Live" : "Waiting"}
                     </p>
                   </div>
                   <div className="bg-panel-strong px-4 py-4">
-                    <p className={`${monoClass} text-muted`}>Source</p>
-                    <p className="mt-3 text-sm font-semibold text-foreground">{visual.sourceLabel}</p>
+                    <p className={`mono-label text-muted`}>Source</p>
+                    <p className="mt-3 text-sm font-semibold text-foreground">
+                      {visual.sourceLabel}
+                    </p>
                   </div>
                   <div className="bg-panel-strong px-4 py-4">
-                    <p className={`${monoClass} text-muted`}>Lead rate</p>
+                    <p className={`mono-label text-muted`}>Lead rate</p>
                     <p className="mt-3 font-display text-[1.75rem] font-semibold tracking-[-0.04em] text-foreground">
-                      {leadProduct ? formatPriceLac(leadProduct.currentPrice) : "Pending"}
+                      {leadProduct
+                        ? formatPriceLac(leadProduct.currentPrice)
+                        : "Pending"}
                     </p>
                   </div>
                 </div>
@@ -911,34 +1003,47 @@ export function SourceBackedCollectionsSection({
                   <div className="border border-line bg-panel-strong px-4 py-4">
                     {leadProduct ? (
                       <>
-                        <p className={`${monoClass} text-muted`}>Featured product</p>
+                        <p className={`mono-label text-muted`}>
+                          Featured product
+                        </p>
                         <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
                           <div>
-                            <p className="text-sm font-semibold text-foreground">{leadProduct.name}</p>
+                            <p className="text-sm font-semibold text-foreground">
+                              {leadProduct.name}
+                            </p>
                             <p className="mt-2 text-sm leading-7 text-muted">
-                              Open the collection board for the complete rate table, market pulse, and archive rows.
+                              Open the collection board for the complete rate
+                              table, market pulse, and archive rows.
                             </p>
                           </div>
-                          <MovementBadge direction={leadProduct.direction} delta={leadProduct.delta} compact />
+                          <MovementBadge
+                            direction={leadProduct.direction}
+                            delta={leadProduct.delta}
+                            compact
+                          />
                         </div>
                       </>
                     ) : (
                       <>
-                        <p className={`${monoClass} text-muted`}>Board note</p>
-                        <p className="mt-3 text-sm leading-7 text-muted">
-                          The image and board shell are live, but published price records have not been added yet.
+                        <p className={`mono-label text-muted`}>Board note</p>
+                        <p className="mt-3">
+                          The image and board shell are live, but published
+                          price records have not been added yet.
                         </p>
                       </>
                     )}
                   </div>
 
                   <div className="flex flex-wrap gap-3 md:justify-end">
-                    <Link className={primaryButtonClass} href={`/collections/${collection.slug}`}>
+                    <Link
+                      className="btn-primary"
+                      href={`/collections/${collection.slug}`}
+                    >
                       Open board
                       <ArrowUpRightIcon />
                     </Link>
                     <a
-                      className={secondaryButtonClass}
+                      className="btn-secondary"
                       href={visual.sourceHref}
                       target="_blank"
                       rel="noreferrer"
@@ -967,26 +1072,41 @@ export function ProductTicker({
   description: string;
 }) {
   return (
-    <div className={`${surfaceClass} overflow-hidden`}>
+    <div className="surface-card motion-panel overflow-hidden">
       <div className="border-b border-line px-5 py-5 sm:px-6">
-        <p className={`${monoClass} text-accent`}>{title}</p>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">{description}</p>
+        <p className={`mono-label text-accent`}>{title}</p>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
+          {description}
+        </p>
       </div>
 
       {products.length > 0 ? (
         <div className="overflow-x-auto px-4 py-4 sm:px-6">
           <div className="flex min-w-max gap-3">
             {products.map((product) => (
-              <div key={product.id} className="motion-lift min-w-56 border border-line bg-panel-strong px-4 py-4">
-                <p className={`${monoClass} text-muted`}>{getTypeLabel(product.type)}</p>
-                <p className="mt-2 text-sm font-semibold text-foreground">{product.name}</p>
+              <div
+                key={product.id}
+                className="motion-lift min-w-56 border border-line bg-panel-strong px-4 py-4"
+              >
+                <p className={`mono-label text-muted`}>
+                  {getTypeLabel(product.type)}
+                </p>
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  {product.name}
+                </p>
                 <p className="mt-5 font-display text-[2.2rem] font-semibold leading-none tracking-[-0.05em] text-foreground">
                   {formatPriceLac(product.currentPrice)}
                 </p>
                 <div className="mt-4 flex items-center justify-between gap-3">
-                  <MovementBadge direction={product.direction} delta={product.delta} compact />
-                  <span className={`${monoClass} text-muted`}>
-                    {product.latestTime ? formatShortDate(product.latestTime) : "Pending"}
+                  <MovementBadge
+                    direction={product.direction}
+                    delta={product.delta}
+                    compact
+                  />
+                  <span className={`mono-label text-muted`}>
+                    {product.latestTime
+                      ? formatShortDate(product.latestTime)
+                      : "Pending"}
                   </span>
                 </div>
               </div>
@@ -995,7 +1115,8 @@ export function ProductTicker({
         </div>
       ) : (
         <div className="px-5 py-6 text-sm leading-7 text-muted sm:px-6">
-          Published products will appear here as soon as Strapi has live price data for this board.
+          Published products will appear here as soon as Strapi has live price
+          data for this board.
         </div>
       )}
     </div>
@@ -1016,7 +1137,7 @@ export function MarketPulseSection({
     : "md:grid-cols-[1.55fr_0.95fr_0.9fr_0.9fr_auto]";
 
   return (
-    <div className={`${brandSurfaceClass} overflow-hidden px-5 py-8 sm:px-8 lg:px-10`}>
+    <div className="surface-brand motion-panel overflow-hidden px-5 py-8 sm:px-8 lg:px-10">
       <SectionHeading
         eyebrow="Market Pulse"
         title="See where the market actually moved."
@@ -1029,7 +1150,7 @@ export function MarketPulseSection({
           {products.length > 0 ? (
             <>
               <div
-                className={`hidden gap-4 border-b border-line bg-panel-strong px-5 py-4 ${monoClass} text-muted md:grid ${columns}`}
+                className={`hidden gap-4 border-b border-line bg-panel-strong px-5 py-4 mono-label md:grid ${columns}`}
               >
                 <span>Product</span>
                 <span>{showCollectionColumn ? "Collection" : "Type"}</span>
@@ -1044,7 +1165,9 @@ export function MarketPulseSection({
                   className={`motion-row grid gap-3 border-b border-line px-5 py-5 last:border-none md:items-center ${columns}`}
                 >
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{product.name}</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {product.name}
+                    </p>
                     <p className="mt-2 text-sm text-muted">
                       {product.latestTime
                         ? `Updated ${formatShortDate(product.latestTime)}`
@@ -1053,25 +1176,44 @@ export function MarketPulseSection({
                   </div>
 
                   {showCollectionColumn ? (
-                    <Link
-                      className="text-sm text-muted transition hover:text-accent"
-                      href={`/collections/${slugify(product.collectionName)}`}
-                    >
-                      {product.collectionName}
-                    </Link>
+                    <div className="space-y-1">
+                      <p className="mono-label text-muted md:hidden">
+                        Collection
+                      </p>
+                      <Link
+                        className="text-sm text-muted transition hover:text-accent"
+                        href={`/collections/${slugify(product.collectionName)}`}
+                      >
+                        {product.collectionName}
+                      </Link>
+                    </div>
                   ) : (
-                    <p className={`${monoClass} text-muted`}>{getTypeLabel(product.type)}</p>
+                    <div className="space-y-1">
+                      <p className="mono-label text-muted md:hidden">Type</p>
+                      <p className={`mono-label text-muted`}>
+                        {getTypeLabel(product.type)}
+                      </p>
+                    </div>
                   )}
 
-                  <p className="font-display text-2xl font-semibold tracking-[-0.04em] text-foreground">
-                    {formatPriceLac(product.currentPrice)}
-                  </p>
-                  <MovementBadge direction={product.direction} delta={product.delta} />
+                  <div className="space-y-1">
+                    <p className="mono-label text-muted md:hidden">Price</p>
+                    <p className="font-display text-2xl font-semibold tracking-[-0.04em] text-foreground">
+                      {formatPriceLac(product.currentPrice)}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="mono-label text-muted md:hidden">Movement</p>
+                    <MovementBadge
+                      direction={product.direction}
+                      delta={product.delta}
+                    />
+                  </div>
                   <a
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-accent"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-[12px] border border-line bg-panel-strong px-4 py-3 text-sm font-semibold text-foreground transition hover:border-accent hover:bg-white hover:text-accent md:w-auto md:justify-start md:border-none md:bg-transparent md:px-0 md:py-0"
                     href={buildWhatsAppUrl(
                       siteMeta.phoneE164,
-                      `Hello, I want context on ${product.name} in ${product.collectionName}.`
+                      `Hello, I want context on ${product.name} in ${product.collectionName}.`,
                     )}
                     target="_blank"
                     rel="noreferrer"
@@ -1091,19 +1233,21 @@ export function MarketPulseSection({
           )}
         </div>
 
-      <div className="sheen border border-white/30 bg-brand-deep/90 p-5">
-          <p className={`${monoClass} text-white/84`}>Need context?</p>
+        <div className="sheen border border-white/30 bg-brand-deep/90 p-5">
+          <p className={`mono-label text-white/84`}>Need context?</p>
           <h3 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
             Numbers still need a reader.
           </h3>
           <p className="mt-3 text-sm leading-7 text-white/88">
-            The board shows structure and momentum. The advisory desk fills the gaps when a collection is thin, a price looks unusual, or you need to compare multiple markets fast.
+            The board shows structure and momentum. The advisory desk fills the
+            gaps when a collection is thin, a price looks unusual, or you need
+            to compare multiple markets fast.
           </p>
           <a
-            className={`${lightButtonClass} mt-5`}
+            className="btn-light mt-5"
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              "Hello, please explain the current market pulse."
+              "Hello, please explain the current market pulse.",
             )}
             target="_blank"
             rel="noreferrer"
@@ -1141,16 +1285,19 @@ export function CollectionTodayRatesShowcase({
       <div className="relative z-10">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_24rem] xl:items-start">
           <div>
-            <div className="inline-flex min-h-10 items-center gap-2 rounded-[999px] border border-white/24 bg-white/12 px-4 py-2 text-white">
+            <div className="inline-flex items-center gap-2 glass-card">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#88e592]" />
-              <span className={`${monoClass} text-white/92`}>Live rates</span>
+              <span className={`mono-label text-white/92`}>Live rates</span>
             </div>
 
             <h2 className="mt-6 font-display text-[clamp(2.6rem,5vw,4.8rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-white">
               {showcaseTitle}
             </h2>
             <p className="mt-4 max-w-3xl text-base leading-8 text-white/88 sm:text-lg">
-              Updated {collection.latestUpdateLabel} · Monitored by {siteMeta.agencyName}. These cards bring the most relevant live prices forward before the user moves into archive rows or board breakdown.
+              Updated {collection.latestUpdateLabel} · Monitored by{" "}
+              {siteMeta.agencyName}. These cards bring the most relevant live
+              prices forward before the user moves into archive rows or board
+              breakdown.
             </p>
 
             <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -1159,29 +1306,36 @@ export function CollectionTodayRatesShowcase({
                   key={product.id}
                   className="motion-lift overflow-hidden rounded-[20px] border border-white/28 bg-white/18 px-5 py-5 backdrop-blur-sm"
                 >
-                  <p className={`${monoClass} text-white/84`}>{getTypeLabel(product.type)} rate</p>
+                  <p className={`mono-label text-white/84`}>
+                    {getTypeLabel(product.type)} rate
+                  </p>
                   <h3 className="mt-3 font-display text-[1.85rem] font-semibold leading-[1.02] tracking-[-0.045em] text-white">
                     {product.name}
                   </h3>
 
                   <div className="mt-6 flex items-end gap-3">
                     <p className="font-display text-[3rem] font-semibold leading-none tracking-[-0.06em] text-white">
-                      {formatPriceLac(product.currentPrice, { showUnit: false })}
+                      {formatPriceLac(product.currentPrice, {
+                        showUnit: false,
+                      })}
                     </p>
-                    <p className="pb-1 text-sm font-semibold uppercase tracking-[0.16em] text-white/84">
+                    <p className="pb-1 text-sm font-semibold uppercase tracking-mono text-white/84">
                       Lac
                     </p>
                   </div>
 
                   <p className="mt-4 text-sm font-medium">
-                    <ShowcaseDeltaLine direction={product.direction} delta={product.delta} />
+                    <ShowcaseDeltaLine
+                      direction={product.direction}
+                      delta={product.delta}
+                    />
                   </p>
 
                   <a
                     className="pressable mt-6 inline-flex min-h-11 w-full items-center justify-center gap-3 rounded-[14px] border border-white/24 bg-white/12 px-4 py-3 text-sm font-semibold text-white hover:border-white/40 hover:bg-white/18"
                     href={buildWhatsAppUrl(
                       siteMeta.phoneE164,
-                      `Hello, I want buy and sell guidance for ${product.name} in ${collection.name}.`
+                      `Hello, I want buy and sell guidance for ${product.name} in ${collection.name}.`,
                     )}
                     target="_blank"
                     rel="noreferrer"
@@ -1228,21 +1382,28 @@ export function CollectionRatesBoard({
   state: MarketState;
 }) {
   if (!collection.hasProducts) {
-    return <CollectionEmptyState collectionName={collection.name} state={state} />;
+    return (
+      <CollectionEmptyState collectionName={collection.name} state={state} />
+    );
   }
 
   return (
     <div className="space-y-8">
       {collection.groups.map((group) => (
-        <section key={group.type} className={`${surfaceClass} p-6 sm:p-8`}>
+        <section
+          key={group.type}
+          className="surface-card motion-panel p-6 sm:p-8"
+        >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-5">
             <div>
-              <p className={`${monoClass} text-accent`}>{group.label}</p>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                Today&apos;s published {group.label.toLowerCase()} for {collection.name}, sorted the same way the public board reads them.
+              <p className={`mono-label text-accent`}>{group.label}</p>
+              <p className="mt-3">
+                Today&apos;s published {group.label.toLowerCase()} for{" "}
+                {collection.name}, sorted the same way the public board reads
+                them.
               </p>
             </div>
-            <span className={chipClass}>{group.products.length} items</span>
+            <span className="chip">{group.products.length} items</span>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -1267,30 +1428,35 @@ export function ArchiveTable({
 }) {
   if (products.length === 0 || rows.length === 0) {
     return (
-      <div className="border border-dashed border-line bg-panel-strong px-5 py-6 text-sm leading-7 text-muted">
-        Historical rows will appear here once this collection has published price history.
+      <div className="border border-dashed border-line bg-panel-strong px-5 py-6">
+        Historical rows will appear here once this collection has published
+        price history.
       </div>
     );
   }
 
   return (
-    <div className={`${surfaceClass} overflow-hidden`}>
+    <div className="surface-card motion-panel overflow-hidden">
       <div className="border-b border-line px-5 py-5 sm:px-6">
-        <p className={`${monoClass} text-accent`}>30-day archive preview</p>
+        <p className={`mono-label text-accent`}>30-day archive preview</p>
         <p className="mt-3 max-w-4xl text-sm leading-7 text-muted">
-          A table-first history view for {collectionName}. Values are shown in Lac and generated directly from the published `price[]` entries in Strapi.
+          A table-first history view for {collectionName}. Values are shown in
+          Lac and generated directly from the published `price[]` entries in
+          Strapi.
         </p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
         <table className="min-w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-line bg-panel-strong">
-              <th className={`px-4 py-4 ${monoClass} text-muted`}>Date</th>
+              <th className={`px-4 py-4 mono-label text-muted`}>Date</th>
               {products.map((product) => (
                 <th key={product.id} className="min-w-36 px-4 py-4">
-                  <span className="block text-sm font-semibold text-foreground">{product.name}</span>
-                  <span className={`${monoClass} mt-1 block text-muted`}>
+                  <span className="block text-sm font-semibold text-foreground">
+                    {product.name}
+                  </span>
+                  <span className={`mono-label mt-1 block text-muted`}>
                     {getTypeLabel(product.type)}
                   </span>
                 </th>
@@ -1299,7 +1465,10 @@ export function ArchiveTable({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.date} className="motion-row border-b border-line last:border-none">
+              <tr
+                key={row.date}
+                className="motion-row border-b border-line last:border-none"
+              >
                 <td className="px-4 py-4 align-top text-sm font-semibold text-foreground">
                   {formatShortDate(row.date)}
                 </td>
@@ -1313,7 +1482,7 @@ export function ArchiveTable({
                           <p className="font-display text-2xl font-semibold tracking-[-0.04em] text-foreground">
                             {formatPriceLac(entry.price, { showUnit: false })}
                           </p>
-                          <p className={`${monoClass} text-muted`}>
+                          <p className={`mono-label text-muted`}>
                             {entry.direction === "up"
                               ? "▲ Up"
                               : entry.direction === "down"
@@ -1355,7 +1524,7 @@ export function TrustAndGuidanceSection({
 }) {
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      <div className={`${surfaceClass} p-6 sm:p-8`}>
+      <div className="surface-card motion-panel p-6 sm:p-8">
         <SectionHeading
           eyebrow="Trust Signals"
           title={trustTitle}
@@ -1364,27 +1533,32 @@ export function TrustAndGuidanceSection({
 
         <div className="mt-8 space-y-4">
           {deals.map((deal) => (
-            <article key={`${deal.month}-${deal.productType}-${deal.action}`} className="motion-lift border border-line bg-panel-strong p-5">
+            <article
+              key={`${deal.month}-${deal.productType}-${deal.action}`}
+              className="motion-lift border border-line bg-panel-strong p-5"
+            >
               <div className="flex flex-wrap items-center gap-3">
-                <span className={`${monoClass} text-muted`}>{deal.month}</span>
-                <span className="border border-foreground bg-foreground px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white">
+                <span className={`mono-label text-muted`}>{deal.month}</span>
+                <span className="border border-foreground bg-foreground px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-loosest text-white">
                   {deal.action}
                 </span>
-                <span className="border border-accent bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white">
+                <span className="border border-accent bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-loosest text-white">
                   {deal.outcomeTag}
                 </span>
               </div>
               <h3 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-foreground">
                 {deal.productType}
               </h3>
-              <p className={`${monoClass} mt-2 text-muted`}>{deal.market}</p>
-              <p className="mt-4 text-sm leading-7 text-muted">{deal.summary}</p>
+              <p className={`mono-label mt-2 text-muted`}>{deal.market}</p>
+              <p className="mt-4 text-sm leading-7 text-muted">
+                {deal.summary}
+              </p>
             </article>
           ))}
         </div>
       </div>
 
-      <div className={`${softSurfaceClass} p-6 sm:p-8`}>
+      <div className="surface-card-strong motion-panel p-6 sm:p-8">
         <SectionHeading
           eyebrow="Investor Guide"
           title={guidanceTitle}
@@ -1393,11 +1567,14 @@ export function TrustAndGuidanceSection({
 
         <div className="mt-8 space-y-4">
           {guides.map((topic) => (
-            <article key={topic.title} className="motion-lift border border-line bg-white px-5 py-5">
+            <article
+              key={topic.title}
+              className="motion-lift border border-line bg-white px-5 py-5"
+            >
               <h3 className="font-display text-[2rem] font-semibold tracking-[-0.04em] text-foreground">
                 {topic.title}
               </h3>
-              <p className="mt-3 text-sm leading-7 text-muted">{topic.description}</p>
+              <p className="mt-3">{topic.description}</p>
             </article>
           ))}
         </div>
@@ -1418,7 +1595,7 @@ export function BrandStorySection({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.1fr)]">
-      <div className={`${surfaceClass} overflow-hidden`}>
+      <div className="surface-card motion-panel overflow-hidden">
         {visual ? (
           <div className="relative min-h-[22rem] overflow-hidden">
             <Image
@@ -1427,16 +1604,23 @@ export function BrandStorySection({
               fill
               sizes="(min-width: 1280px) 36vw, (min-width: 1024px) 42vw, 100vw"
               className="object-cover"
-              style={visual.objectPosition ? { objectPosition: visual.objectPosition } : undefined}
+              style={
+                visual.objectPosition
+                  ? { objectPosition: visual.objectPosition }
+                  : undefined
+              }
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,28,75,0.16)_0%,rgba(3,28,75,0.86)_100%)]" />
             <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-              <p className={`${monoClass} text-white/86`}>{siteMeta.bioEyebrow}</p>
+              <p className={`mono-label text-white/86`}>
+                {siteMeta.bioEyebrow}
+              </p>
               <h3 className="mt-3 font-display text-[clamp(2rem,4vw,3.3rem)] font-semibold leading-[0.96] tracking-[-0.05em] text-white [text-shadow:0_8px_24px_rgba(2,8,22,0.28)]">
                 One portal. Multiple live boards.
               </h3>
               <p className="mt-3 max-w-xl text-sm leading-7 text-white/92">
-                A cleaner market interface that helps users move from browsing to an informed buy, sell, or hold decision.
+                A cleaner market interface that helps users move from browsing
+                to an informed buy, sell, or hold decision.
               </p>
             </div>
           </div>
@@ -1447,7 +1631,7 @@ export function BrandStorySection({
         )}
       </div>
 
-      <div className={`${softSurfaceClass} p-6 sm:p-8`}>
+      <div className="surface-card-strong motion-panel p-6 sm:p-8">
         <SectionHeading
           eyebrow={siteMeta.bioEyebrow}
           title={siteMeta.bioTitle}
@@ -1457,23 +1641,30 @@ export function BrandStorySection({
         <div className="mt-8 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-3">
           {siteMeta.bioHighlights.map((highlight) => (
             <div key={highlight} className="bg-white px-4 py-5">
-              <p className={`${monoClass} text-accent`}>Focus</p>
-              <p className="mt-3 text-sm font-semibold leading-7 text-foreground">{highlight}</p>
+              <p className={`mono-label text-accent`}>Focus</p>
+              <p className="mt-3 text-sm font-semibold leading-7 text-foreground">
+                {highlight}
+              </p>
             </div>
           ))}
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
           <div className="border border-line bg-white px-5 py-5">
-            <p className={`${monoClass} text-muted`}>Short bio</p>
-            <p className="mt-3 text-sm leading-7 text-muted">
-              Property Portals is structured as a live market hub with dedicated collection pages, clearer section hierarchy, and direct contact paths for serious visitors. It is built to look trustworthy, feel lightweight, and keep decision-making close to the data.
+            <p className={`mono-label text-muted`}>Short bio</p>
+            <p className="mt-3">
+              Property Portals is structured as a live market hub with dedicated
+              collection pages, clearer section hierarchy, and direct contact
+              paths for serious visitors. It is built to look trustworthy, feel
+              lightweight, and keep decision-making close to the data.
             </p>
           </div>
 
           <div className="bg-brand-gradient border border-white/20 px-5 py-5 text-white">
-            <p className={`${monoClass} text-white/86`}>{siteMeta.visionTitle}</p>
-            <p className="mt-3 text-sm leading-7 text-white/92">{siteMeta.visionDescription}</p>
+            <p className={`mono-label text-white/86`}>{siteMeta.visionTitle}</p>
+            <p className="mt-3 text-sm leading-7 text-white/92">
+              {siteMeta.visionDescription}
+            </p>
           </div>
         </div>
       </div>
@@ -1487,15 +1678,15 @@ export function OfficeAndCoverageSection({
   collectionLinks: CollectionLink[];
 }) {
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
-    siteMeta.officeMapQuery
+    siteMeta.officeMapQuery,
   )}&z=15&output=embed`;
   const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    siteMeta.officeMapQuery
+    siteMeta.officeMapQuery,
   )}`;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.14fr)_minmax(320px,0.86fr)]">
-      <div className={`${surfaceClass} overflow-hidden`}>
+      <div className="surface-card motion-panel overflow-hidden">
         <div className="border-b border-line px-5 py-6 sm:px-8">
           <SectionHeading
             eyebrow="Office And Coverage"
@@ -1518,36 +1709,48 @@ export function OfficeAndCoverageSection({
           </div>
 
           <div className="bg-panel-strong p-6 sm:p-8">
-            <p className={`${monoClass} text-accent`}>Office</p>
+            <p className={`mono-label text-accent`}>Office</p>
             <h3 className="mt-3 font-display text-[clamp(2rem,3.5vw,3rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-foreground">
               {siteMeta.address}
             </h3>
             <p className="mt-4 text-sm leading-7 text-muted">
-              Visible office information makes the portal feel more accountable. Keep the address live, keep the map close, and keep the route to advice simple.
+              Visible office information makes the portal feel more accountable.
+              Keep the address live, keep the map close, and keep the route to
+              advice simple.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <a className={primaryButtonClass} href={mapHref} target="_blank" rel="noreferrer">
+              <a
+                className="btn-primary"
+                href={mapHref}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Open map
                 <ArrowUpRightIcon />
               </a>
-              <a className={secondaryButtonClass} href={`tel:${siteMeta.phoneE164}`}>
+              <a className="btn-secondary" href={`tel:${siteMeta.phoneE164}`}>
                 Call advisory desk
               </a>
             </div>
 
             <div className="mt-8 border border-line bg-white px-4 py-5">
-              <p className={`${monoClass} text-muted`}>Collections</p>
+              <p className={`mono-label text-muted`}>Collections</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {collectionLinks.length > 0 ? (
                   collectionLinks.map((collection) => (
-                    <Link key={collection.slug} className={chipClass} href={`/collections/${collection.slug}`}>
+                    <Link
+                      key={collection.slug}
+                      className="chip"
+                      href={`/collections/${collection.slug}`}
+                    >
                       {collection.label}
                     </Link>
                   ))
                 ) : (
                   <p className="text-sm text-muted">
-                    Collection links will appear here as soon as the CMS has published boards.
+                    Collection links will appear here as soon as the CMS has
+                    published boards.
                   </p>
                 )}
               </div>
@@ -1556,21 +1759,24 @@ export function OfficeAndCoverageSection({
         </div>
       </div>
 
-      <div className={`${softSurfaceClass} p-6 sm:p-8`}>
-        <p className={`${monoClass} text-accent`}>Social Channels</p>
+      <div className="surface-card-strong motion-panel p-6 sm:p-8">
+        <p className={`mono-label text-accent`}>Social Channels</p>
         <h3 className="mt-3 font-display text-[clamp(2rem,3.5vw,3rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-foreground">
           Keep the contact paths visible beyond the form.
         </h3>
         <p className="mt-4 text-sm leading-7 text-muted">
-          Add direct access to Instagram, TikTok, and Facebook so the portal feels active outside the landing page itself.
+          Add direct access to the active social channels so the portal feels
+          visible outside the landing page itself.
         </p>
 
         <SocialLinks labeled className="mt-6" />
 
         <div className="bg-brand-gradient mt-6 border border-white/20 px-5 py-5 text-white">
-          <p className={`${monoClass} text-white/86`}>Practical note</p>
+          <p className={`mono-label text-white/86`}>Practical note</p>
           <p className="mt-3 text-sm leading-7 text-white/92">
-            The strongest property portals do not hide trust behind one form. They show office visibility, public social channels, and multiple ways to continue the conversation.
+            The strongest property portals do not hide trust behind one form.
+            They show office visibility, public social channels, and multiple
+            ways to continue the conversation.
           </p>
         </div>
       </div>
@@ -1613,12 +1819,16 @@ export function ConsultationSection({
           </ul>
 
           <div className="sheen border border-white/22 bg-white/14 p-5">
-            <p className={`${monoClass} text-white/86`}>Advisory desk</p>
+            <p className={`mono-label text-white/86`}>Advisory desk</p>
             <p className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">
               {siteMeta.expertName}
             </p>
-            <p className="mt-2 text-sm leading-7 text-white/92">{siteMeta.agencyName}</p>
-            <p className="text-sm leading-7 text-white/92">{siteMeta.address}</p>
+            <p className="mt-2 text-sm leading-7 text-white/92">
+              {siteMeta.agencyName}
+            </p>
+            <p className="text-sm leading-7 text-white/92">
+              {siteMeta.address}
+            </p>
             <a
               className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-white/84"
               href={`tel:${siteMeta.phoneE164}`}
@@ -1631,20 +1841,22 @@ export function ConsultationSection({
       </div>
 
       <div className="bg-white px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-        <p className={`${monoClass} text-muted`}>Get market guidance</p>
+        <p className={`mono-label text-muted`}>Get market guidance</p>
         <h2 className="mt-3 font-display text-[clamp(2.2rem,4vw,3.6rem)] font-semibold leading-[0.96] tracking-[-0.05em] text-foreground">
           Get a human read on the market in under a minute.
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          Choose your intent, optionally add the collection or product, and open WhatsApp with the right context already filled in.
+          Choose your intent, optionally add the collection or product, and open
+          WhatsApp with the right context already filled in.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <a
-            className={primaryButtonClass}
+            className="btn-primary w-full sm:w-auto"
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              quickMessage ?? "Hello, I want help with the current property market."
+              quickMessage ??
+                "Hello, I want help with the current property market.",
             )}
             target="_blank"
             rel="noreferrer"
@@ -1652,14 +1864,19 @@ export function ConsultationSection({
             Open WhatsApp now
             <ArrowUpRightIcon />
           </a>
-          <p className="text-sm text-muted">Prefer to add more context first? Use the form below.</p>
+          <p className="text-sm text-muted">
+            Prefer to add more context first? Use the form below.
+          </p>
         </div>
 
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           {consultationExpectations.map((item) => (
-            <div key={item.title} className="border border-line bg-panel-strong px-4 py-4">
-              <p className={`${monoClass} text-accent`}>{item.title}</p>
-              <p className="mt-3 text-sm leading-7 text-muted">{item.description}</p>
+            <div
+              key={item.title}
+              className="border border-line bg-panel-strong px-4 py-4"
+            >
+              <p className={`mono-label text-accent`}>{item.title}</p>
+              <p className="mt-3">{item.description}</p>
             </div>
           ))}
         </div>
@@ -1679,21 +1896,27 @@ export function ConsultationSection({
 
 export function SiteFooter({ pageLinks }: { pageLinks: PageLink[] }) {
   return (
-    <footer className={`${darkSurfaceClass} border-x-0 border-b-0`}>
-      <div className={`${shellClass} grid gap-10 py-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)] lg:py-16`}>
+    <footer className="surface-navy border-x-0 border-b-0">
+      <div className="shell grid gap-10 py-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)] lg:py-16">
         <div>
           <BrandLockup compact caption="Live collection boards" inverse />
           <p className="mt-4 max-w-xl text-sm leading-7 text-white/86">
-            A refined property portal for public-facing collection boards, market context, budgeting tools, and direct advisory contact when the data alone is not enough.
+            A refined property portal for public-facing collection boards,
+            market context, budgeting tools, and direct advisory contact when
+            the data alone is not enough.
           </p>
           <SocialLinks footer />
         </div>
 
         <div>
-          <p className={`${monoClass} text-white/84`}>Quick Links</p>
+          <p className={`mono-label text-white/84`}>Quick Links</p>
           <div className="mt-4 flex flex-col gap-3 text-sm text-white/84">
             {pageLinks.map((link) => (
-              <a key={link.href} href={link.href} className="transition hover:text-white">
+              <a
+                key={link.href}
+                href={link.href}
+                className="transition hover:text-white"
+              >
                 {link.label}
               </a>
             ))}
@@ -1704,11 +1927,14 @@ export function SiteFooter({ pageLinks }: { pageLinks: PageLink[] }) {
         </div>
 
         <div>
-          <p className={`${monoClass} text-white/84`}>Contact</p>
+          <p className={`mono-label text-white/84`}>Contact</p>
           <div className="mt-4 space-y-3 text-sm leading-7 text-white/84">
             <p>{siteMeta.agencyName}</p>
             <p>{siteMeta.address}</p>
-            <a href={`tel:${siteMeta.phoneE164}`} className="block transition hover:text-white">
+            <a
+              href={`tel:${siteMeta.phoneE164}`}
+              className="block transition hover:text-white"
+            >
               Advisory line: {siteMeta.phoneDisplay}
             </a>
           </div>
@@ -1716,7 +1942,7 @@ export function SiteFooter({ pageLinks }: { pageLinks: PageLink[] }) {
       </div>
 
       <div className="border-t border-white/12">
-        <div className={`${shellClass} flex flex-col gap-3 py-5 text-sm text-white/84 lg:flex-row lg:items-center lg:justify-between`}>
+        <div className="shell flex flex-col gap-3 py-5 text-sm text-white/84 lg:flex-row lg:items-center lg:justify-between">
           <p>© 2026 {siteMeta.brandName}. All rights reserved.</p>
           <p className="max-w-3xl">{siteMeta.disclaimer}</p>
         </div>
@@ -1729,7 +1955,7 @@ export function formatPriceLac(
   value: number | null,
   options: {
     showUnit?: boolean;
-  } = {}
+  } = {},
 ) {
   if (value === null) {
     return "Awaiting rate";
@@ -1781,12 +2007,12 @@ function ProductBoardCard({ product }: { product: MappedProductCard }) {
     <article className="motion-lift border border-line bg-white p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className={`${monoClass} text-muted`}>{product.collectionName}</p>
+          <p className={`mono-label text-muted`}>{product.collectionName}</p>
           <h4 className="mt-2 font-display text-[2rem] font-semibold leading-none tracking-[-0.05em] text-foreground">
             {product.name}
           </h4>
         </div>
-        <span className={chipClass}>{getTypeLabel(product.type)}</span>
+        <span className="chip">{getTypeLabel(product.type)}</span>
       </div>
 
       <p className="mt-4 text-sm leading-7 text-muted">{product.description}</p>
@@ -1796,7 +2022,7 @@ function ProductBoardCard({ product }: { product: MappedProductCard }) {
           <p className="font-display text-[3rem] font-semibold leading-none tracking-[-0.06em] text-foreground">
             {formatPriceLac(product.currentPrice)}
           </p>
-          <p className={`${monoClass} mt-3 text-muted`}>
+          <p className={`mono-label mt-3 text-muted`}>
             {product.latestTime
               ? `Latest point ${formatDate(product.latestTime)}`
               : "No published price points yet"}
@@ -1809,7 +2035,7 @@ function ProductBoardCard({ product }: { product: MappedProductCard }) {
             className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-accent"
             href={buildWhatsAppUrl(
               siteMeta.phoneE164,
-              `Hello, please guide me on ${product.name} in ${product.collectionName}.`
+              `Hello, please guide me on ${product.name} in ${product.collectionName}.`,
             )}
             target="_blank"
             rel="noreferrer"
@@ -1822,17 +2048,23 @@ function ProductBoardCard({ product }: { product: MappedProductCard }) {
 
       <div className="mt-6 border border-line bg-panel-strong px-4 py-4">
         <div className="flex items-center justify-between gap-4">
-          <p className={`${monoClass} text-muted`}>Recent trend</p>
-          <p className={`${monoClass} text-muted`}>{product.pricePointCount} points</p>
+          <p className={`mono-label text-muted`}>Recent trend</p>
+          <p className={`mono-label text-muted`}>
+            {product.pricePointCount} points
+          </p>
         </div>
 
         {product.sparklinePoints.length >= 2 ? (
           <div className="mt-4">
-            <MiniTrend points={product.sparklinePoints} direction={product.direction} />
+            <MiniTrend
+              points={product.sparklinePoints}
+              direction={product.direction}
+            />
           </div>
         ) : (
           <p className="mt-4 text-sm leading-7 text-muted">
-            Publish at least two price points in Strapi to unlock a visible trend for this product.
+            Publish at least two price points in Strapi to unlock a visible
+            trend for this product.
           </p>
         )}
       </div>
@@ -1850,7 +2082,7 @@ function CollectionEmptyState({
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="border border-dashed border-line bg-panel-strong px-5 py-6">
-        <p className={`${monoClass} text-muted`}>
+        <p className={`mono-label text-muted`}>
           {state === "unavailable" ? "Connection issue" : "Rates coming soon"}
         </p>
         <h4 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-foreground">
@@ -1865,16 +2097,18 @@ function CollectionEmptyState({
         </p>
       </div>
 
-      <div className={`${brandSurfaceClass} sheen p-5`}>
-        <p className={`${monoClass} text-white/84`}>Interim action</p>
+      <div className="surface-brand motion-panel sheen p-5">
+        <p className={`mono-label text-white/84`}>Interim action</p>
         <p className="mt-3 text-sm leading-7 text-white/90">
-          If this is the board you care about, use WhatsApp now and ask whether the market is awaiting publication or simply waiting for the next manual update.
+          If this is the board you care about, use WhatsApp now and ask whether
+          the market is awaiting publication or simply waiting for the next
+          manual update.
         </p>
         <a
-          className={`${lightButtonClass} mt-5`}
+          className="btn-light mt-5"
           href={buildWhatsAppUrl(
             siteMeta.phoneE164,
-            `Hello, please share the current situation for ${collectionName}.`
+            `Hello, please share the current situation for ${collectionName}.`,
           )}
           target="_blank"
           rel="noreferrer"
@@ -1899,7 +2133,7 @@ function MovementBadge({
   inverse?: boolean;
 }) {
   const baseClass = compact
-    ? "inline-flex items-center gap-2 rounded-[20px] px-2.5 py-1 text-[0.68rem] font-mono uppercase tracking-[0.12em]"
+    ? "inline-flex items-center gap-2 rounded-[20px] px-2.5 py-1 text-mono-sm font-mono uppercase tracking-looser"
     : "inline-flex items-center gap-2 rounded-[20px] px-3 py-2 text-sm font-medium";
 
   if (direction === null || delta === null) {
@@ -1953,7 +2187,7 @@ function MovementBadge({
 function MetricTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-white/22 px-4 py-4">
-      <p className={`${monoClass} text-white/84`}>{label}</p>
+      <p className={`mono-label text-white/84`}>{label}</p>
       <p className="mt-3 font-display text-[1.9rem] font-semibold tracking-[-0.04em] text-white">
         {value}
       </p>
@@ -1976,8 +2210,11 @@ function MiniTrend({
   const range = max - min || 1;
   const path = points
     .map((point, index) => {
-      const x = padding + (index / Math.max(points.length - 1, 1)) * (width - padding * 2);
-      const y = height - padding - ((point - min) / range) * (height - padding * 2);
+      const x =
+        padding +
+        (index / Math.max(points.length - 1, 1)) * (width - padding * 2);
+      const y =
+        height - padding - ((point - min) / range) * (height - padding * 2);
 
       return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
     })
@@ -2003,12 +2240,29 @@ function MiniTrend({
         strokeWidth="1"
         strokeDasharray="3 5"
       />
-      <path d={path} fill="none" stroke={stroke} strokeWidth="3.2" strokeLinecap="round" />
+      <path
+        d={path}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
       {points.map((point, index) => {
-        const x = padding + (index / Math.max(points.length - 1, 1)) * (width - padding * 2);
-        const y = height - padding - ((point - min) / range) * (height - padding * 2);
+        const x =
+          padding +
+          (index / Math.max(points.length - 1, 1)) * (width - padding * 2);
+        const y =
+          height - padding - ((point - min) / range) * (height - padding * 2);
 
-        return <circle key={`${point}-${index}`} cx={x} cy={y} r="2.8" fill={stroke} />;
+        return (
+          <circle
+            key={`${point}-${index}`}
+            cx={x}
+            cy={y}
+            r="2.8"
+            fill={stroke}
+          />
+        );
       })}
     </svg>
   );
@@ -2050,25 +2304,27 @@ function SocialLinks({
   }
 
   return (
-      <div className={`flex flex-wrap items-center gap-2 ${compact || footer ? "" : "mt-5"} ${className}`}>
-        {siteMeta.socialLinks.map((social) => (
-          <a
-            key={social.label}
-            className={`pressable inline-flex ${compact ? "h-8 w-8" : "h-10 w-10"} items-center justify-center rounded-[10px] border text-xs font-semibold uppercase tracking-[0.16em] ${
-              footer
+    <div
+      className={`flex flex-wrap items-center gap-2 ${compact || footer ? "" : "mt-5"} ${className}`}
+    >
+      {siteMeta.socialLinks.map((social) => (
+        <a
+          key={social.label}
+          className={`pressable inline-flex ${compact ? "h-8 w-8" : "h-10 w-10"} items-center justify-center rounded-[10px] border text-xs font-semibold uppercase tracking-mono ${
+            footer
+              ? "border-white/18 bg-white/10 text-white/88 hover:border-white/32 hover:text-white"
+              : inverse
                 ? "border-white/18 bg-white/10 text-white/88 hover:border-white/32 hover:text-white"
-                : inverse
-                  ? "border-white/18 bg-white/10 text-white/88 hover:border-white/32 hover:text-white"
-                  : "border-line bg-white text-foreground hover:border-accent hover:text-accent"
-            }`}
-            href={social.href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={social.label}
-          >
-            <SocialIcon label={social.label} className="h-4.5 w-4.5" />
-          </a>
-        ))}
+                : "border-line bg-white text-foreground hover:border-accent hover:text-accent"
+          }`}
+          href={social.href}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={social.label}
+        >
+          <SocialIcon label={social.label} className="h-4.5 w-4.5" />
+        </a>
+      ))}
     </div>
   );
 }
@@ -2082,8 +2338,21 @@ function SocialIcon({
 }) {
   if (label === "Instagram") {
     return (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="5" stroke="currentColor" strokeWidth="1.8" />
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className={className}
+        fill="none"
+      >
+        <rect
+          x="3.5"
+          y="3.5"
+          width="17"
+          height="17"
+          rx="5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
         <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
         <circle cx="17.4" cy="6.8" r="1.2" fill="currentColor" />
       </svg>
@@ -2092,14 +2361,24 @@ function SocialIcon({
 
   if (label === "TikTok") {
     return (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className={className}
+        fill="currentColor"
+      >
         <path d="M14.78 3c.34 1.87 1.36 3.23 3.22 3.72v2.56c-1.24-.03-2.28-.38-3.22-1.02v5.66c0 3.31-2.04 5.61-5.38 5.61-3.13 0-5.4-2.16-5.4-5.16 0-3.15 2.48-5.34 5.75-5.12v2.61c-1.57-.16-2.96.73-2.96 2.45 0 1.33.98 2.42 2.37 2.42 1.59 0 2.8-1.03 2.8-3.18V3h2.82Z" />
       </svg>
     );
   }
 
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+    >
       <path d="M13.37 20v-7.29h2.45l.37-2.84h-2.82V8.05c0-.82.23-1.38 1.4-1.38H16V4.12c-.55-.08-1.35-.12-2.27-.12-2.24 0-3.77 1.37-3.77 3.89v1.98H7.43v2.84h2.53V20h3.41Z" />
     </svg>
   );
@@ -2107,7 +2386,11 @@ function SocialIcon({
 
 function ArrowUpRightIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[1.8]">
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-4 w-4 fill-none stroke-current stroke-[1.8]"
+    >
       <path d="M7 17 17 7" />
       <path d="M8 7h9v9" />
     </svg>
@@ -2165,14 +2448,19 @@ function ShowcaseDeltaLine({
 
   return (
     <span className={isUp ? "text-[#88e592]" : "text-[#ff8b8b]"}>
-      {isUp ? "▲" : "▼"} {formatPriceLac(Math.abs(delta), { showUnit: false })} today
+      {isUp ? "▲" : "▼"} {formatPriceLac(Math.abs(delta), { showUnit: false })}{" "}
+      today
     </span>
   );
 }
 
 function CheckIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]">
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]"
+    >
       <path d="m5 12 4 4L19 8" />
     </svg>
   );
