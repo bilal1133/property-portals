@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 
 import {
   ArchiveTable,
@@ -28,6 +29,35 @@ type CollectionPageProps = {
     slug: string;
   }>;
 };
+
+const siteUrl = "https://property-portals.com";
+
+function generateBreadcrumbSchema(slug: string, collectionName: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Collections",
+        item: `${siteUrl}/#collections`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: collectionName,
+        item: `${siteUrl}/collections/${slug}`,
+      },
+    ],
+  };
+}
 
 const shellClass = "mx-auto w-full max-w-[1600px] px-5 sm:px-8 xl:px-[52px]";
 export const revalidate = 300;
@@ -95,7 +125,17 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   const headerTickerItems = buildHeaderTickerItems(homepageData.sections);
 
   return (
-    <main id="top" className="overflow-x-clip">
+    <>
+      <Script
+        id="breadcrumb-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateBreadcrumbSchema(slug, pageData.collection.name)
+          ),
+        }}
+      />
+      <main id="top" className="overflow-x-clip">
       <SiteHeader
         pageLinks={pageLinks}
         collectionLinks={homepageData.collectionLinks.slice(0, 8)}
@@ -190,5 +230,6 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
       <SiteFooter pageLinks={pageLinks} />
     </main>
+    </>
   );
 }
