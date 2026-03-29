@@ -127,6 +127,14 @@ export type CollectionPageData = {
   productOptions: string[];
 };
 
+export type MarketSitemapData = {
+  homepageLastModified?: string;
+  collections: Array<{
+    slug: string;
+    lastModified?: string;
+  }>;
+};
+
 export async function getMarketHomepageData(): Promise<MarketHomepageData> {
   if (!STRAPI_API_TOKEN) {
     return emptyHomepageResult("unavailable");
@@ -208,6 +216,41 @@ export async function getCollectionSlugs() {
   } catch (error) {
     console.error("Failed to load collection slugs", error);
     return [];
+  }
+}
+
+export async function getMarketSitemapData(): Promise<MarketSitemapData> {
+  if (!STRAPI_API_TOKEN) {
+    return {
+      collections: [],
+    };
+  }
+
+  try {
+    const { collections, products } = await loadMarketSource();
+
+    return {
+      homepageLastModified: getLatestTimestamp([
+        ...collections.map((collection) => collection.updatedAt),
+        ...products.map(getProductTimestamp),
+      ]),
+      collections: collections.map((collection) => ({
+        slug: slugify(collection.name),
+        lastModified: getLatestTimestamp([
+          collection.updatedAt,
+          ...products
+            .filter(
+              (product) => product.collection?.documentId === collection.documentId
+            )
+            .map(getProductTimestamp),
+        ]),
+      })),
+    };
+  } catch (error) {
+    console.error("Failed to load market sitemap data", error);
+    return {
+      collections: [],
+    };
   }
 }
 
@@ -340,6 +383,12 @@ function parseNumericValue(value: string | null | undefined) {
   const numericValue = Number(value.replaceAll(",", ""));
 
   return Number.isFinite(numericValue) ? numericValue : null;
+}
+
+function getProductTimestamp(product: CmsProduct) {
+  const latestPricePoint = normalizePricePoints(product.price).at(-1);
+
+  return latestPricePoint?.time ?? product.updatedAt;
 }
 
 function groupProducts(products: MappedProductCard[]) {
@@ -488,6 +537,18 @@ function formatUpdatedLabel(value: string) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function getLatestTimestamp(values: Array<string | null | undefined>) {
+  const timestamps = values.filter(Boolean) as string[];
+
+  if (timestamps.length === 0) {
+    return undefined;
+  }
+
+  return timestamps.sort(
+    (left, right) => new Date(right).getTime() - new Date(left).getTime()
+  )[0];
 }
 
 function emptyHomepageResult(state: MarketState): MarketHomepageData {

@@ -34,6 +34,19 @@ export type SiteMeta = {
   consultationBenefits: string[];
 };
 
+export const siteOrigin =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://property-portals.com";
+
+export const officeAddressSchema = {
+  streetAddress: "Street 10, Dera G Block, Sector G, DHA Phase 6",
+  addressLocality: "Lahore",
+  addressRegion: "Punjab",
+  postalCode: "54000",
+  addressCountry: "PK",
+} as const;
+
+export const defaultSocialImagePath = "/opengraph-image";
+
 export type DealProof = {
   month: string;
   action: "Buy" | "Sell";
@@ -74,14 +87,14 @@ export const siteMeta: SiteMeta = {
   siteTitle: "Live Property Rates And Collection Boards",
   agencyName: "Property Portals Advisory Desk",
   expertName: "Property Portals Advisory Desk",
-  phoneDisplay: "0300-9484188",
-  phoneE164: "923009484188",
+  phoneDisplay: "+923099936786",
+  phoneE164: "923099936786",
   whatsappChannelUrl: "https://www.whatsapp.com/channel/",
-  address: "30 N Gould St Ste R, Sheridan, WY 82801, United States",
-  heroEyebrow: "Live collection boards · Buyer and seller guidance",
-  heroHeadline: "Compare live property rates, shortlist the right collection, and ask for guidance before you move.",
+  address: "Street 10, Dera G Block, Sector G, DHA Phase 6, Lahore, 54000, Pakistan",
+  heroEyebrow: "Live Property Market",
+  heroHeadline: "Live Property Rates. Real Market Context.",
   heroDescription:
-    "Start with a live collection board, check the latest published rate and recent movement, and open WhatsApp with the market already in context. Built for buyers, sellers, and investors who want a faster read before acting.",
+    "Track live boards, compare collection activity, review market movement, and get direct guidance when you need more than numbers.",
   bioEyebrow: "About The Desk",
   bioTitle: "A property portal built to move visitors from browsing to a real decision.",
   bioDescription:
@@ -94,7 +107,7 @@ export const siteMeta: SiteMeta = {
     "Buy and sell intent paths from the homepage",
     "Construction cost estimation for faster budgeting",
   ],
-  officeMapQuery: "30 N Gould St Ste R, Sheridan, WY 82801, United States",
+  officeMapQuery: "Street 10, Dera G Block, Sector G, DHA Phase 6, Lahore, 54000, Pakistan",
   disclaimer:
     "Market values shown here reflect published CMS data and are intended as indicative guidance only. They are not a formal valuation, legal offer, or guarantee of execution.",
   trustBadges: [
@@ -104,27 +117,22 @@ export const siteMeta: SiteMeta = {
     { value: "Office", label: "Address, map, and contact visibility" },
   ],
   quickLinks: [
-    { label: "About", href: "#about" },
+    { label: "Start Here", href: "#start" },
+    { label: "Market Pulse", href: "#pulse" },
     { label: "Collections", href: "#collections" },
     { label: "Calculator", href: "#calculator" },
-    { label: "Office", href: "#office" },
-    { label: "Contact", href: "#contact" },
+    { label: "Advisory", href: "#advisory" },
   ],
   socialLinks: [
     {
       label: "Instagram",
       shortLabel: "IG",
-      href: "https://www.instagram.com/tkturners_official/",
-    },
-    {
-      label: "TikTok",
-      shortLabel: "TT",
-      href: "https://www.tiktok.com/search?q=tkturners",
+      href: "https://www.instagram.com/propertyportals1?utm_source=qr&igsh=bW80cmxsbmZ1b2pl",
     },
     {
       label: "Facebook",
       shortLabel: "FB",
-      href: "https://www.facebook.com/share/FaAyfRLpf1fHZw8L/?mibextid=qi2Omg",
+      href: "https://www.facebook.com/share/18FcdiqAQD/",
     },
   ],
   consultationBenefits: [

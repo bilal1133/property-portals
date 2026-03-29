@@ -12,7 +12,7 @@ export type CollectionVisual = {
 
 const collectionVisuals: Record<string, CollectionVisual> = {
   "mangla-green-housing": {
-    src: "/collection-visuals/mangla-green-housing-hero.jpg",
+    src: "/collection-visuals/mangla-green-housing-property-board-hero.jpg",
     alt: "Aerial view of the lakeside terrain and residential plots at Mangla Green Housing.",
     kicker: "Official aerial view",
     location: "Mangla, Mirpur",
@@ -24,7 +24,7 @@ const collectionVisuals: Record<string, CollectionVisual> = {
     objectPosition: "center center",
   },
   "phase-10": {
-    src: "/collection-visuals/phase-10-hero.jpeg",
+    src: "/collection-visuals/dha-phase-10-property-board-hero.jpg",
     alt: "Official DHA Lahore Phase X illustration used for project positioning.",
     kicker: "Official Phase X visual",
     location: "DHA Lahore Phase X",
@@ -36,7 +36,7 @@ const collectionVisuals: Record<string, CollectionVisual> = {
     objectPosition: "center center",
   },
   "dha-queeta": {
-    src: "/collection-visuals/dha-queeta-hero.jpg",
+    src: "/collection-visuals/dha-quetta-property-board-hero.jpg",
     alt: "Official DHA Quetta gateway render with the entry boulevard and planned urban frontage.",
     kicker: "Official DHA Quetta render",
     location: "Main RCD Highway, Quetta",
@@ -50,5 +50,11 @@ const collectionVisuals: Record<string, CollectionVisual> = {
 };
 
 export function getCollectionVisual(slug: string) {
-  return collectionVisuals[slug] ?? null;
+  if (collectionVisuals[slug]) {
+    return collectionVisuals[slug];
+  }
+
+  const normalizedSlug = slug.replace(/^dha-/, "");
+
+  return collectionVisuals[normalizedSlug] ?? null;
 }
